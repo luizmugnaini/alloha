@@ -21,7 +21,7 @@ typedef struct ArenaAlloc {
     size_t offset;      /**< Offset to the free memory space, relative to `buf`. */
     size_t previous_offset; /**< Offset to the start of the previously allocated memory region,
                                  relative to `buf`. */
-    int mem_owner;          /**< Flag indicating if the allocator owns the memory. */
+    int memory_owner;       /**< Flag indicating if the allocator owns the memory. */
 } ArenaAlloc;
 
 /**

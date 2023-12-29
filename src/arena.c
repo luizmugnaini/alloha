@@ -110,7 +110,7 @@ void arena_free_all(ArenaAlloc* arena) {
 }
 
 void arena_destroy(ArenaAlloc* arena) {
-    if (arena->mem_owner) {
+    if (arena->mem_owner && arena->buf) {
         free(arena->buf);
     }
 }
