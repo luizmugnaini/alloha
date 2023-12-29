@@ -1,3 +1,8 @@
+/**
+ * @brief Tests for the arena allocator.
+ * @file test_arena.c
+ * @author Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+ */
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -64,7 +69,7 @@ void arena_owned_memory(void) {
     const size_t arena_size = 512;
     arena_init(&arena, 0, arena_size);
     arena_destroy(&arena);
-    printf("Test `arena_owned_memory` passed.");
+    printf("Test `arena_owned_memory` passed.\n");
 }
 
 // Checking correctness of the offsets for various allocations demanding different alignments.
