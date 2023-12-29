@@ -34,16 +34,16 @@ typedef struct ArenaAlloc {
  *        free resources.
  * @param buf_size Size, in bytes, of the provided block of memory `buf`.
  */
-void arena_init(ArenaAlloc* arena, void* buf, size_t buf_size);
+void arena_init(ArenaAlloc* arena, const void* buf, const size_t buf_size);
 
 /** Computes the next pointer with respect to `ptr` that has the required alignment. */
-uintptr_t align_forward(uintptr_t ptr, size_t alignment);
+uintptr_t align_forward(uintptr_t ptr, const size_t alignment);
 
 /** Allocates `size` bytes of memory with a given alignment. */
-void* arena_alloc_aligned(ArenaAlloc* arena, size_t size, size_t alignment);
+void* arena_alloc_aligned(ArenaAlloc* arena, const size_t size, const size_t alignment);
 
 /** Allocates `size` bytes of memory with the default alignment. */
-void* arena_alloc(ArenaAlloc* arena, size_t size);
+void* arena_alloc(ArenaAlloc* arena, const size_t size);
 
 /**
  * Resizes a given block of memory that lies in the memory buffer managed by the arena allocator.
@@ -59,7 +59,11 @@ void* arena_alloc(ArenaAlloc* arena, size_t size);
  *         two.
  */
 void* arena_resize(
-    ArenaAlloc* arena, void* old_mem, size_t old_mem_size, size_t new_size, size_t alignment);
+    ArenaAlloc* arena,
+    void* old_mem,
+    const size_t old_mem_size,
+    const size_t new_size,
+    const size_t alignment);
 
 /** Free all memory managed by the arena. */
 void arena_free_all(ArenaAlloc* arena);
