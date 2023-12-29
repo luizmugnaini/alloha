@@ -15,7 +15,7 @@
 #endif  // DEFAULT_ALIGNMENT
 
 /** Arena allocator. */
-typedef struct ArenaAlloc {
+typedef struct {
     unsigned char* buf; /**< Buffer containing the memory managed by the allocator. */
     size_t capacity;    /**< Capacity, in bytes, of `buf` (in this case, the length of `buf`). */
     size_t offset;      /**< Offset to the free memory space, relative to `buf`. */
@@ -35,6 +35,9 @@ typedef struct ArenaAlloc {
  * @param buf_size Size, in bytes, of the provided block of memory `buf`.
  */
 void arena_init(ArenaAlloc* arena, const void* buf, const size_t buf_size);
+
+/** Creates an arena allocator with a given capacity in bytes. */
+ArenaAlloc arena_create(const size_t capacity);
 
 /** Computes the next pointer with respect to `ptr` that has the required alignment. */
 uintptr_t align_forward(uintptr_t ptr, const size_t alignment);

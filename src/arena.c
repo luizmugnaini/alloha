@@ -1,3 +1,8 @@
+/**
+ * @brief Arena memory allocator implementation.
+ * @file arena.c
+ * @author Luiz G. Mugnaini Anselmo <luizmugnaini@gmail.com>
+ */
 #include <alloha/arena.h>
 #include <alloha/core.h>
 
@@ -9,14 +14,24 @@
 void arena_init(ArenaAlloc* arena, const void* buf, const size_t buf_size) {
     if (buf) {
         arena->buf = (unsigned char*)buf;
-        arena->mem_owner = ALLOHA_FALSE;
+        arena->memory_owner = ALLOHA_FALSE;
     } else {
         arena->buf = (unsigned char*)malloc(buf_size);
-        arena->mem_owner = ALLOHA_TRUE;
+        arena->memory_owner = ALLOHA_TRUE;
     }
     arena->capacity = buf_size;
     arena->offset = 0;
     arena->previous_offset = 0;
+}
+
+ArenaAlloc arena_create(const size_t capacity) {
+    return (ArenaAlloc){
+        .buf = malloc(capacity),
+        .capacity = capacity,
+        .offset = 0,
+        .previous_offset = 0,
+        .memory_owner = ALLOHA_TRUE,
+    };
 }
 
 uintptr_t align_forward(uintptr_t ptr, const size_t alignment) {
@@ -110,16 +125,21 @@ void arena_free_all(ArenaAlloc* arena) {
 }
 
 void arena_destroy(ArenaAlloc* arena) {
-    if (arena->mem_owner && arena->buf) {
+    if (arena->memory_owner && arena->buf) {
         free(arena->buf);
+        arena->capacity = 0;
+        arena->offset = 0;
+        arena->previous_offset = 0;
+        arena->memory_owner = ALLOHA_FALSE;
     }
 }
 
 TemporaryArenaAlloc temporary_arena_init(ArenaAlloc* arena) {
-    TemporaryArenaAlloc tmp_arena;
-    tmp_arena.arena = arena;
-    tmp_arena.saved_offset = arena->offset;
-    tmp_arena.saved_previous_offset = arena->previous_offset;
+    TemporaryArenaAlloc tmp_arena = {
+        .arena = arena,
+        .saved_offset = arena->offset,
+        .saved_previous_offset = arena->previous_offset,
+    };
     return tmp_arena;
 }
 
