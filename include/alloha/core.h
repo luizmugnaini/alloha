@@ -1,3 +1,8 @@
+/**
+ * @brief Common functions and variables used by the allocators.
+ * @file core.h
+ * @author Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+ */
 #ifndef CORE_HEADER
 #define CORE_HEADER
 
