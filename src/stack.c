@@ -13,6 +13,7 @@
 #include <stdlib.h>  // for malloc, free
 
 static size_t const k_stack_header_size = sizeof(StackAllocHeader);
+static size_t const k_stack_header_alignment = sizeof(size_t);
 
 void stack_init(StackAlloc* const stack, void* const buf, size_t const buf_size) {
     assert(stack && "stack_init called with a invalid stack allocator.");
@@ -34,37 +35,13 @@ StackAlloc stack_create(size_t const capacity) {
     };
 }
 
-size_t padding_with_header(uintptr_t const ptr, size_t const alignment, size_t const header_size) {
-    assert(
-        is_power_of_two(alignment) &&
-        "padding_with_header expected the alignment to be a power of two");
-    uintptr_t padding = 0;
-    uintptr_t const al = (uintptr_t)alignment;
-    uintptr_t const mod = ptr & (al - 1);
-    if (mod != 0) {
-        padding = al - mod;
-    }
-    printf("Padding without header: %u\n", (unsigned)padding);
-
-    uintptr_t required_mem_size = (uintptr_t)header_size;
-    if (padding < required_mem_size) {
-        required_mem_size -= padding;
-        if ((required_mem_size & (al - 1)) != 0) {
-            padding += al * (1 + (required_mem_size / al));
-        } else {
-            padding += al * (required_mem_size / al);
-        }
-    }
-    return (size_t)padding;
-}
-
 void* stack_alloc_aligned(StackAlloc* const stack, size_t const size, size_t const alignment) {
     assert(stack && "stack_alloc_aligned called with an invalid stack allocator");
     assert(size != 0 && "stack_alloc_aligned called with a request for a zero sized allocation");
 
     uintptr_t const current_addr = (uintptr_t)stack->buf + (uintptr_t)stack->offset;
-    size_t const padding = padding_with_header(current_addr, alignment, k_stack_header_size);
-    printf("Padding with header: %zu\n", padding);
+    size_t const padding =
+        padding_with_header(current_addr, alignment, k_stack_header_size, k_stack_header_alignment);
     if (padding + size > stack->capacity - stack->offset) {
         fprintf(
             stderr,
