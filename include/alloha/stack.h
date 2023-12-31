@@ -74,8 +74,6 @@ typedef struct {
     int memory_owner;       /**< Whether the allocator owns the memory managed by the allocator. */
 } StackAlloc;
 
-// TODO: write docs
-
 /**
  * Initializes a stack allocator that will take care of managing an externally allocated memory
  * block.
