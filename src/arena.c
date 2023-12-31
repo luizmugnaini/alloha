@@ -31,23 +31,6 @@ ArenaAlloc arena_create(size_t const capacity) {
     };
 }
 
-uintptr_t align_forward(uintptr_t ptr, size_t const alignment) {
-    if (!is_power_of_two(alignment)) {
-        fprintf(stderr, "align_forward expected a power of two alignment, got %zu.\n", alignment);
-        return 0;
-    }
-
-    uintptr_t const al = (uintptr_t)alignment;
-    uintptr_t const mod =
-        ptr & (al - 1);  // NOTE: Same as `ptr % al` (but faster) since `al` is a power of two.
-    if (mod != 0) {
-        // `ptr` is unaligned and we need to put it to the next aligned address.
-        ptr += al - mod;
-    }
-
-    return ptr;
-}
-
 void* arena_alloc_aligned(ArenaAlloc* const arena, size_t const size, size_t const alignment) {
     uintptr_t const free_mem_ptr = (uintptr_t)arena->buf + (uintptr_t)arena->offset;
     uintptr_t const aligned_offset = align_forward(free_mem_ptr, alignment) - (uintptr_t)arena->buf;

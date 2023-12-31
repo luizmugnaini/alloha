@@ -8,8 +8,6 @@
 
 #include <stddef.h>  // for size_t
 
-// TODO: Write all docs
-
 /**
  * Header associated with each memory block in the stack allocator.
  *
