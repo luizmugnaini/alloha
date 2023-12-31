@@ -14,7 +14,18 @@
 #define DEFAULT_ALIGNMENT (2 * sizeof(void*))
 #endif  // DEFAULT_ALIGNMENT
 
-/** Arena allocator. */
+/** Arena allocator.
+ *
+ * The allocator memory layout looks like the following diagram:
+ *
+ *    |memory|padding|memory|  free space  |
+ *    ^              ^                     ^
+ *    |              |                     |
+ *  start        previous                 end
+ *    |           offset                   |
+ *    |                                    |
+ *    |------------ capacity --------------|
+ */
 typedef struct {
     unsigned char* buf; /**< Buffer containing the memory managed by the allocator. */
     size_t capacity;    /**< Capacity, in bytes, of `buf` (in this case, the length of `buf`). */
@@ -28,25 +39,22 @@ typedef struct {
  * Initialize an arena allocator.
  *
  * @param arena A pointer to the arena allocator to be initialized.
- * @param buf Pointer to the block of memory that will be managed by the allocator. If a null
- *        pointer is passed, the function assumes that the memory must be created and that the
- *        allocator owns the memory. If the latter is the case, you must call `arena_destroy` to
- *        free resources.
+ * @param buf Pointer to the block of memory that will be managed, but not owned, by the allocator.
  * @param buf_size Size, in bytes, of the provided block of memory `buf`.
  */
-void arena_init(ArenaAlloc* arena, const void* buf, const size_t buf_size);
+void arena_init(ArenaAlloc* const arena, void* const buf, size_t const buf_size);
 
 /** Creates an arena allocator with a given capacity in bytes. */
-ArenaAlloc arena_create(const size_t capacity);
+ArenaAlloc arena_create(size_t const capacity);
 
 /** Computes the next pointer with respect to `ptr` that has the required alignment. */
-uintptr_t align_forward(uintptr_t ptr, const size_t alignment);
+uintptr_t align_forward(uintptr_t ptr, size_t const alignment);
 
 /** Allocates `size` bytes of memory with a given alignment. */
-void* arena_alloc_aligned(ArenaAlloc* arena, const size_t size, const size_t alignment);
+void* arena_alloc_aligned(ArenaAlloc* const arena, size_t const size, size_t const alignment);
 
 /** Allocates `size` bytes of memory with the default alignment. */
-void* arena_alloc(ArenaAlloc* arena, const size_t size);
+void* arena_alloc(ArenaAlloc* const arena, size_t const size);
 
 /**
  * Resizes a given block of memory that lies in the memory buffer managed by the arena allocator.
@@ -62,14 +70,14 @@ void* arena_alloc(ArenaAlloc* arena, const size_t size);
  *         two.
  */
 void* arena_resize(
-    ArenaAlloc* arena,
-    void* old_mem,
-    const size_t old_mem_size,
-    const size_t new_size,
-    const size_t alignment);
+    ArenaAlloc* const arena,
+    void* const old_mem,
+    size_t const old_mem_size,
+    size_t const new_size,
+    size_t const alignment);
 
 /** Free all memory managed by the arena. */
-void arena_free_all(ArenaAlloc* arena);
+void arena_free_all(ArenaAlloc* const arena);
 
 /** Destroys the memory owned by the arena. */
 void arena_destroy(ArenaAlloc* arena);
@@ -91,12 +99,12 @@ typedef struct TemporaryArenaAlloc {
 /**
  * Creates an instance of a `TemporaryArenaAlloc` with the current state of the offsets of `arena`.
  */
-TemporaryArenaAlloc temporary_arena_init(ArenaAlloc* arena);
+TemporaryArenaAlloc temporary_arena_init(ArenaAlloc* const arena);
 
 /**
  * Restores the offset state of the arena allocator saved in `tmp_arena` when `temporary_arena_init`
  * was called.
  */
-void temporary_arena_end(TemporaryArenaAlloc* tmp_arena);
+void temporary_arena_end(TemporaryArenaAlloc* const tmp_arena);
 
 #endif  // ARENA_HEADER

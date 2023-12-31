@@ -13,6 +13,6 @@
 #define ALLOHA_TRUE 1
 #define ALLOHA_FALSE 0
 
-int is_power_of_two(int x);
+int is_power_of_two(unsigned const x);
 
 #endif  // CORE_HEADER
