@@ -5,6 +5,6 @@
  */
 #include <alloha/core.h>
 
-int is_power_of_two(int x) {
+int is_power_of_two(unsigned const x) {
     return x > 0 && !(x & (x - 1));
 }
