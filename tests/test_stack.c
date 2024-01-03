@@ -1,15 +1,16 @@
 #include <alloha/stack.h>
 
 #include <assert.h>
+#include <stdalign.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-const size_t k_stack_header_size = sizeof(StackAllocHeader);
-const size_t k_stack_header_alignment = sizeof(size_t);
+size_t const k_stack_header_size = sizeof(stack_alloc_header_t);
+size_t const k_stack_header_alignment = alignof(stack_alloc_header_t);
 
 void stack_offsets_reads_and_writes(void) {
-    StackAlloc stack;
+    stack_alloc_t stack;
     size_t const buf_size = 1024;
     void* const buf = malloc(buf_size);
     stack_init(&stack, buf, buf_size);
@@ -36,8 +37,8 @@ void stack_offsets_reads_and_writes(void) {
     uintptr_t const array1_addr = buf_start_addr + (uintptr_t)array1_expected_offset;
 
     // Check the correctness of the `array1` header.
-    StackAllocHeader const* const array1_header =
-        (StackAllocHeader const*)(array1_addr - (uintptr_t)k_stack_header_size);
+    stack_alloc_header_t const* const array1_header =
+        (stack_alloc_header_t const*)(array1_addr - (uintptr_t)k_stack_header_size);
     assert(array1_header->padding == array1_expected_padding);
     assert(array1_header->previous_offset == 0);
 
@@ -76,8 +77,8 @@ void stack_offsets_reads_and_writes(void) {
     uintptr_t const array2_addr = buf_start_addr + (uintptr_t)array2_expected_offset;
 
     // Check the correctness of the `array2` header.
-    StackAllocHeader const* const array2_header =
-        (StackAllocHeader const*)(array2_addr - (uintptr_t)k_stack_header_size);
+    stack_alloc_header_t const* const array2_header =
+        (stack_alloc_header_t const*)(array2_addr - (uintptr_t)k_stack_header_size);
     assert(array2_header->padding == array2_expected_padding);
     assert(array2_header->previous_offset == (size_t)(array1_addr - buf_start_addr));
 
@@ -96,7 +97,7 @@ void stack_offsets_reads_and_writes(void) {
 }
 
 void stack_owned_memory(void) {
-    StackAlloc stack = stack_create(512);
+    stack_alloc_t stack = stack_create(512);
     assert(stack.memory_owner);
     unsigned* const array =
         (unsigned*)stack_alloc_aligned(&stack, 30 * sizeof(unsigned), sizeof(unsigned));
@@ -106,7 +107,7 @@ void stack_owned_memory(void) {
 }
 
 void stack_memory_stress_and_free(void) {
-    StackAlloc stack = stack_create(2048);
+    stack_alloc_t stack = stack_create(2048);
     ptrdiff_t const stack_buf_diff = (ptrdiff_t)stack.buf;
 
     size_t const a1_size = 50 * sizeof(char const*);

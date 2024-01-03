@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void arena_init(ArenaAlloc* const arena, void* const buf, const size_t buf_size) {
+void arena_init(arena_alloc_t* const arena, void* const buf, const size_t buf_size) {
     assert(buf);
     arena->buf = (unsigned char*)buf;
     arena->memory_owner = ALLOHA_FALSE;
@@ -21,8 +21,8 @@ void arena_init(ArenaAlloc* const arena, void* const buf, const size_t buf_size)
     arena->previous_offset = 0;
 }
 
-ArenaAlloc arena_create(size_t const capacity) {
-    return (ArenaAlloc){
+arena_alloc_t arena_create(size_t const capacity) {
+    return (arena_alloc_t){
         .buf = malloc(capacity),
         .capacity = capacity,
         .offset = 0,
@@ -31,7 +31,7 @@ ArenaAlloc arena_create(size_t const capacity) {
     };
 }
 
-void* arena_alloc_aligned(ArenaAlloc* const arena, size_t const size, size_t const alignment) {
+void* arena_alloc_aligned(arena_alloc_t* const arena, size_t const size, size_t const alignment) {
     uintptr_t const free_mem_ptr = (uintptr_t)arena->buf + (uintptr_t)arena->offset;
     uintptr_t const aligned_offset = align_forward(free_mem_ptr, alignment) - (uintptr_t)arena->buf;
 
@@ -51,12 +51,12 @@ void* arena_alloc_aligned(ArenaAlloc* const arena, size_t const size, size_t con
     return mem_block;
 }
 
-void* arena_alloc(ArenaAlloc* const arena, size_t const size) {
+void* arena_alloc(arena_alloc_t* const arena, size_t const size) {
     return arena_alloc_aligned(arena, size, DEFAULT_ALIGNMENT);
 }
 
 void* arena_resize(
-    ArenaAlloc* const arena,
+    arena_alloc_t* const arena,
     void* const old_mem,
     size_t const old_mem_size,
     size_t const new_size,
@@ -99,20 +99,20 @@ void* arena_resize(
     return new_mem;
 }
 
-void arena_free_all(ArenaAlloc* const arena) {
+void arena_free_all(arena_alloc_t* const arena) {
     arena->offset = 0;
     arena->previous_offset = 0;
 }
 
-void arena_destroy(ArenaAlloc* arena) {
+void arena_destroy(arena_alloc_t* arena) {
     if (arena->memory_owner && arena->buf) {
         free(arena->buf);
-        *arena = (ArenaAlloc){0};
+        *arena = (arena_alloc_t){0};
     }
 }
 
-TemporaryArenaAlloc temporary_arena_init(ArenaAlloc* const arena) {
-    TemporaryArenaAlloc tmp_arena = {
+temporary_arena_alloc_t temporary_arena_init(arena_alloc_t* const arena) {
+    temporary_arena_alloc_t tmp_arena = {
         .arena = arena,
         .saved_offset = arena->offset,
         .saved_previous_offset = arena->previous_offset,
@@ -120,12 +120,12 @@ TemporaryArenaAlloc temporary_arena_init(ArenaAlloc* const arena) {
     return tmp_arena;
 }
 
-void temporary_arena_end(TemporaryArenaAlloc* tmp_arena) {
+void temporary_arena_end(temporary_arena_alloc_t* tmp_arena) {
     if (!tmp_arena) {
         fprintf(stderr, "temporary_arena_end called with an invalid temporary arena allocator.\n");
         return;
     }
     tmp_arena->arena->offset = tmp_arena->saved_offset;
     tmp_arena->arena->previous_offset = tmp_arena->saved_previous_offset;
-    *tmp_arena = (TemporaryArenaAlloc){0};
+    *tmp_arena = (temporary_arena_alloc_t){0};
 }

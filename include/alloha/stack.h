@@ -26,14 +26,14 @@
  *                                  ^              ^
  *                                  |--`padding`---|
  */
-typedef struct {
+typedef struct stack_alloc_header_s {
     size_t padding; /**< Padding, in bytes, needed for the alignment of the memory block associated
                          with the header. The padding accounts for both the size of the header and
                          the needed alignment. */
     size_t previous_offset; /**< Pointer offset, relative to the stack allocator memory block, to
                                  the start of the memory address of the last allocated block (after
                                  its header). */
-} StackAllocHeader;
+} stack_alloc_header_t;
 
 /**
  * A stack memory allocator.
@@ -64,7 +64,7 @@ typedef struct {
  * resources. If a block of memory is to be provided to the allocator for only management, the user
  * may instantiate the allocator via `stack_init` with a valid pointer to the available memory.
  */
-typedef struct {
+typedef struct stack_alloc_s {
     unsigned char* buf; /**< Buffer holding the memory managed by the allocator. */
     size_t capacity;    /**< Capacity, in bytes, of the allocator. */
     size_t offset;      /**< Pointer offset relative to `buf` to the memory address where the free
@@ -72,7 +72,7 @@ typedef struct {
     size_t previous_offset; /**< Pointer offset relative to `buf` to the start of the memory
                                  address of the last allocated block (after its header). */
     int memory_owner;       /**< Whether the allocator owns the memory managed by the allocator. */
-} StackAlloc;
+} stack_alloc_t;
 
 /**
  * Initializes a stack allocator that will take care of managing an externally allocated memory
@@ -82,7 +82,7 @@ typedef struct {
  * @param buf Buffer that the stack will manage for allocations.
  * @param buf_size Size of `buf` in bytes, which will become the capacity of `stack`.
  */
-void stack_init(StackAlloc* const stack, void* const buf, size_t const buf_size);
+void stack_init(stack_alloc_t* const stack, void* const buf, size_t const buf_size);
 
 /**
  * Creates a stack allocator that owns its memory.
@@ -90,7 +90,7 @@ void stack_init(StackAlloc* const stack, void* const buf, size_t const buf_size)
  * @param capacity Capacity, in bytes, that the stack allocator should have.
  * @return The resulting stack allocator.
  */
-StackAlloc stack_create(size_t const capacity);
+stack_alloc_t stack_create(size_t const capacity);
 
 /**
  * Allocates a block of memory of a given size and alignment.
@@ -106,7 +106,7 @@ StackAlloc stack_create(size_t const capacity);
  *         the stack ran out of memory, a null pointer will be returned, so you should always check
  *         the returned pointer by this function.
  */
-void* stack_alloc_aligned(StackAlloc* const stack, size_t const size, size_t const alignment);
+void* stack_alloc_aligned(stack_alloc_t* const stack, size_t const size, size_t const alignment);
 
 /**
  * Allocates a block of memory of a given size using a default alignment.
@@ -120,7 +120,7 @@ void* stack_alloc_aligned(StackAlloc* const stack, size_t const size, size_t con
  *         pointer will be returned, so you should always check the returned pointer by this
  *         function.
  */
-void* stack_alloc(StackAlloc* const stack, size_t const size);
+void* stack_alloc(stack_alloc_t* const stack, size_t const size);
 
 /**
  * Frees the last memory block allocated by the given stack.
@@ -130,7 +130,7 @@ void* stack_alloc(StackAlloc* const stack, size_t const size);
  * @param stack Pointer to the stack containing the memory block to be freed. If this pointer is
  *        null, the program will panic.
  */
-void stack_pop(StackAlloc* const stack);
+void stack_pop(stack_alloc_t* const stack);
 
 /**
  * Free all memory blocks up until the specified block pointed at by `ptr`.
@@ -143,7 +143,7 @@ void stack_pop(StackAlloc* const stack);
  *
  * @return Returns the status of the operation: true if it was successful, false otherwise.
  */
-int stack_free(StackAlloc* const stack, void* ptr);
+int stack_free(stack_alloc_t* const stack, void* ptr);
 
 /**
  * Free all allocated memory blocks of the stack.
@@ -154,11 +154,11 @@ int stack_free(StackAlloc* const stack, void* ptr);
  * @param stack Pointer to the stack that should have all of its memory freed. If this pointer is
  *        null, the program will panic.
  */
-void stack_free_all(StackAlloc* const stack);
+void stack_free_all(stack_alloc_t* const stack);
 
 /**
  * Destroy the memory managed by the stack
  */
-void stack_destroy(StackAlloc* const stack);
+void stack_destroy(stack_alloc_t* const stack);
 
 #endif  // STACK_HEADER

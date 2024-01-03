@@ -19,7 +19,7 @@ typedef struct Foo {
 // Check reads and writes.
 void arena_memory_not_owned(void) {
     int test_passed = 1;
-    ArenaAlloc arena;
+    arena_alloc_t arena;
     size_t const buf_size = 1024;
     void* const buf = malloc(buf_size);
     arena_init(&arena, buf, buf_size);
@@ -67,7 +67,7 @@ void arena_memory_not_owned(void) {
 // Check initialization and destruction of memory owned by the arena.
 void arena_owned_memory(void) {
     size_t const arena_size = 512;
-    ArenaAlloc arena = arena_create(arena_size);
+    arena_alloc_t arena = arena_create(arena_size);
     assert(arena.memory_owner);
     arena_destroy(&arena);
     assert(arena.buf == 0);
@@ -78,7 +78,7 @@ void arena_owned_memory(void) {
 // Checking correctness of the offsets for various allocations demanding different alignments.
 void arena_check_offsets(void) {
     size_t const arena_size = 1024;
-    ArenaAlloc arena = arena_create(arena_size);
+    arena_alloc_t arena = arena_create(arena_size);
 
     size_t const arr_u8_len = 255;
     size_t const arr_u8_size = arr_u8_len * sizeof(uint8_t);
