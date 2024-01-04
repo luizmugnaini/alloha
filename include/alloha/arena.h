@@ -51,16 +51,6 @@ void arena_init(
 arena_alloc_t arena_create(size_t const capacity);
 
 /**
- * @brief Computes the next address with the required alignment.
- *
- * @param ptr Current memory address.
- * @param alignment The alignment requirement that should be used to compute the next address.
- *
- * @return Next address, with respect to `ptr` that satisfies the required alignment.
- */
-uintptr_t align_forward(uintptr_t ptr, size_t const alignment);
-
-/**
  * @brief Allocate a block of memory satisfying a given alignment.
  *
  * @param arena The arena allocator responsible for the allocation.
