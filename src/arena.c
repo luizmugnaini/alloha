@@ -4,19 +4,19 @@
  * @author Luiz G. Mugnaini Anselmo <luizmugnaini@gmail.com>
  */
 #include <alloha/arena.h>
-#include <alloha/core.h>
 
-#include <assert.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <alloha/core.h>  // for DEFAULT_ALIGNMENT, ALLOHA_TRUE, ALLOHA_FALSE
+#include <assert.h>       // for assert
+#include <stdint.h>       // for uint8_t, uintptr_t
+#include <stdio.h>        // for printf
+#include <stdlib.h>       // for malloc, free
+#include <string.h>       // for memmove
 
 void arena_init(
     arena_alloc_t* const restrict arena, void* const restrict buf, const size_t buf_size) {
     assert(arena && "arena_init called with an invalid arena allocator");
     assert(buf && "arena_init called with an invalid memory block");
-    arena->buf = (unsigned char*)buf;
+    arena->buf = (uint8_t*)buf;
     arena->capacity = buf_size;
     arena->offset = 0;
     arena->previous_offset = 0;
@@ -28,7 +28,7 @@ arena_alloc_t arena_create(size_t const capacity) {
         capacity != 0 &&
         "arena_create called with a requested capacity of zero, which isn't allowed");
 
-    unsigned char* const buf = (unsigned char*)malloc(capacity);
+    uint8_t* const buf = (uint8_t*)malloc(capacity);
     assert(buf && "arena_create couldn't allocate the requested amount of memory");
 
     return (arena_alloc_t){
@@ -87,7 +87,7 @@ void* arena_resize(
         return 0;
     }
 
-    unsigned char* const old_mem_bytes = (unsigned char*)old_mem;
+    uint8_t* const old_mem_bytes = (uint8_t*)old_mem;
     if (!(arena->buf <= old_mem_bytes && old_mem_bytes < arena->buf + arena->capacity)) {
         fprintf(
             stderr,

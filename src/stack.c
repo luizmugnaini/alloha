@@ -3,14 +3,14 @@
  * @file stack.c
  * @author Luiz G. Mugnaini Anselmo <luizmugnaini@gmail.com>
  */
-#include <alloha/core.h>  // for is_power_of_two, DEFAULT_ALIGNMENT, ALLOHA_FALSE, ALLOHA_TRUE
 #include <alloha/stack.h>
 
-#include <assert.h>  // for assert
-#include <stddef.h>  // for size_t
-#include <stdint.h>  // for uintptr_t
-#include <stdio.h>   // for fprintf, stderr
-#include <stdlib.h>  // for malloc, free
+#include <alloha/core.h>  // for is_power_of_two, DEFAULT_ALIGNMENT, ALLOHA_FALSE, ALLOHA_TRUE
+#include <assert.h>       // for assert
+#include <stddef.h>       // for size_t
+#include <stdint.h>       // for uintptr_t, uint8_t
+#include <stdio.h>        // for fprintf, stderr
+#include <stdlib.h>       // for malloc, free
 
 static size_t const k_stack_header_size = sizeof(stack_alloc_header_t);
 static size_t const k_stack_header_alignment = sizeof(size_t);
@@ -19,7 +19,7 @@ void stack_init(
     stack_alloc_t* const restrict stack, void* const restrict buf, size_t const buf_size) {
     assert(stack && "stack_init called with a invalid stack allocator");
     assert(buf && "stack_init called with an invalid memory buffer");
-    stack->buf = (unsigned char*)buf;
+    stack->buf = (uint8_t*)buf;
     stack->capacity = buf_size;
     stack->offset = 0;
     stack->previous_offset = 0;
@@ -28,7 +28,7 @@ void stack_init(
 
 stack_alloc_t stack_create(size_t const capacity) {
     assert(capacity != 0 && "stack_create called with zero capacity");
-    unsigned char* const buf = (unsigned char*)malloc(capacity);
+    uint8_t* const buf = (uint8_t*)malloc(capacity);
     assert(buf && "Unable to allocate memory for the stack allocator");
     return (stack_alloc_t){
         .buf = buf,
