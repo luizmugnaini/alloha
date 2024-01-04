@@ -130,7 +130,7 @@ void* stack_alloc(stack_alloc_t* const stack, size_t const size);
  * @param stack Pointer to the stack containing the memory block to be freed. If this pointer is
  *        null, the program will panic.
  */
-void stack_pop(stack_alloc_t* const stack);
+int stack_pop(stack_alloc_t* const stack);
 
 /**
  * Free all memory blocks up until the specified block pointed at by `ptr`.
