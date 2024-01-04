@@ -5,7 +5,7 @@
  */
 #include <alloha/arena.h>
 
-#include <alloha/core.h>  // for DEFAULT_ALIGNMENT, ALLOHA_TRUE, ALLOHA_FALSE
+#include <alloha/core.h>  // for ALLOHA_DEFAULT_ALIGNMENT, ALLOHA_TRUE, ALLOHA_FALSE
 #include <assert.h>       // for assert
 #include <stdint.h>       // for uint8_t, uintptr_t
 #include <stdio.h>        // for printf
@@ -66,7 +66,7 @@ void* arena_alloc_aligned(arena_alloc_t* const arena, size_t const size, size_t 
 }
 
 void* arena_alloc(arena_alloc_t* const arena, size_t const size) {
-    return arena_alloc_aligned(arena, size, DEFAULT_ALIGNMENT);
+    return arena_alloc_aligned(arena, size, ALLOHA_DEFAULT_ALIGNMENT);
 }
 
 void* arena_resize(

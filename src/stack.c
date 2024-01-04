@@ -5,7 +5,7 @@
  */
 #include <alloha/stack.h>
 
-#include <alloha/core.h>  // for is_power_of_two, DEFAULT_ALIGNMENT, ALLOHA_FALSE, ALLOHA_TRUE
+#include <alloha/core.h>  // for is_power_of_two, ALLOHA_DEFAULT_ALIGNMENT, ALLOHA_FALSE, ALLOHA_TRUE
 #include <assert.h>       // for assert
 #include <stddef.h>       // for size_t
 #include <stdint.h>       // for uintptr_t, uint8_t
@@ -70,7 +70,7 @@ void* stack_alloc_aligned(stack_alloc_t* const stack, size_t const size, size_t 
 }
 
 void* stack_alloc(stack_alloc_t* const stack, size_t const size) {
-    return stack_alloc_aligned(stack, size, DEFAULT_ALIGNMENT);
+    return stack_alloc_aligned(stack, size, ALLOHA_DEFAULT_ALIGNMENT);
 }
 
 int stack_pop(stack_alloc_t* const stack) {
