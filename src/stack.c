@@ -15,7 +15,8 @@
 static size_t const k_stack_header_size = sizeof(stack_alloc_header_t);
 static size_t const k_stack_header_alignment = sizeof(size_t);
 
-void stack_init(stack_alloc_t* const stack, void* const buf, size_t const buf_size) {
+void stack_init(
+    stack_alloc_t* const restrict stack, void* const restrict buf, size_t const buf_size) {
     assert(stack && "stack_init called with a invalid stack allocator");
     assert(buf && "stack_init called with an invalid memory buffer");
     stack->buf = (unsigned char*)buf;
@@ -73,7 +74,7 @@ void* stack_alloc(stack_alloc_t* const stack, size_t const size) {
 }
 
 int stack_pop(stack_alloc_t* const stack) {
-    assert(stack && "stack_pop called with an invalid stack allocator.");
+    assert(stack && "stack_pop called with an invalid stack allocator");
     if (stack->offset == 0) {
         return ALLOHA_FALSE;
     }
@@ -86,8 +87,8 @@ int stack_pop(stack_alloc_t* const stack) {
     return ALLOHA_TRUE;
 }
 
-int stack_free(stack_alloc_t* const stack, void* ptr) {
-    assert(stack && "stack_free called with an invalid stack allocator.");
+int stack_free(stack_alloc_t* const restrict stack, void* restrict ptr) {
+    assert(stack && "stack_free called with an invalid stack allocator");
     if (!ptr) {
         fprintf(stderr, "stack_free requested to free a null pointer.\n");
         return ALLOHA_FALSE;
@@ -117,13 +118,13 @@ int stack_free(stack_alloc_t* const stack, void* ptr) {
 }
 
 void stack_free_all(stack_alloc_t* const stack) {
-    assert(stack && "stack_free_all called with an invalid stack allocator.");
+    assert(stack && "stack_free_all called with an invalid stack allocator");
     stack->offset = 0;
     stack->previous_offset = 0;
 }
 
 void stack_destroy(stack_alloc_t* const stack) {
-    assert(stack && "stack_free_all called with an invalid stack allocator.");
+    assert(stack && "stack_free_all called with an invalid stack allocator");
     if (stack->memory_owner && stack->buf) {
         free(stack->buf);
         *stack = (stack_alloc_t){0};
