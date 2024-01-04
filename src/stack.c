@@ -72,10 +72,10 @@ void* stack_alloc(stack_alloc_t* const stack, size_t const size) {
     return stack_alloc_aligned(stack, size, DEFAULT_ALIGNMENT);
 }
 
-void stack_pop(stack_alloc_t* const stack) {
+int stack_pop(stack_alloc_t* const stack) {
     assert(stack && "stack_pop called with an invalid stack allocator.");
-    if (stack->previous_offset == 0) {
-        return;
+    if (stack->offset == 0) {
+        return ALLOHA_FALSE;
     }
 
     uintptr_t const last_addr = (uintptr_t)stack->buf + (uintptr_t)stack->previous_offset;
@@ -83,6 +83,7 @@ void stack_pop(stack_alloc_t* const stack) {
         (stack_alloc_header_t const*)(last_addr - (uintptr_t)k_stack_header_size);
     stack->offset = stack->previous_offset - last_addr_header->padding;
     stack->previous_offset = last_addr_header->previous_offset;
+    return ALLOHA_TRUE;
 }
 
 int stack_free(stack_alloc_t* const stack, void* ptr) {
