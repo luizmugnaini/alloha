@@ -9,7 +9,8 @@
 #include <stddef.h>  // for size_t
 #include <stdint.h>  // for uintptr_t, uint8_t
 
-/** Arena allocator.
+/**
+ * @brief Arena (linear) memory allocator.
  *
  * The allocator memory layout looks like the following diagram:
  *
@@ -31,7 +32,7 @@ typedef struct arena_alloc_s {
 } arena_alloc_t;
 
 /**
- * Initialize an arena allocator.
+ * @brief Initialize an existing arena allocator.
  *
  * @param arena A pointer to the arena allocator to be initialized.
  * @param buf Pointer to the block of memory that will be managed, but not owned, by the allocator.
@@ -40,28 +41,61 @@ typedef struct arena_alloc_s {
 void arena_init(
     arena_alloc_t* const restrict arena, void* const restrict buf, size_t const buf_size);
 
-/** Creates an arena allocator with a given capacity in bytes. */
+/**
+ * @brief Create a new arena allocator.
+ *
+ * @param capacity Capacity, in bytes, of the new allocator.
+ *
+ * @return The resulting arena allocator.
+ */
 arena_alloc_t arena_create(size_t const capacity);
 
-/** Computes the next pointer with respect to `ptr` that has the required alignment. */
+/**
+ * @brief Computes the next address with the required alignment.
+ *
+ * @param ptr Current memory address.
+ * @param alignment The alignment requirement that should be used to compute the next address.
+ *
+ * @return Next address, with respect to `ptr` that satisfies the required alignment.
+ */
 uintptr_t align_forward(uintptr_t ptr, size_t const alignment);
 
-/** Allocates `size` bytes of memory with a given alignment. */
+/**
+ * @brief Allocate a block of memory satisfying a given alignment.
+ *
+ * @param arena The arena allocator responsible for the allocation.
+ * @param size The size, in bytes, of the new block of memory.
+ * @param alignment The alignment, in bytes, needed by the new block of memory.
+ *
+ * @return Pointer to the newly allocated block of memory. This can be null if the allocation
+ *         failed.
+ */
 void* arena_alloc_aligned(arena_alloc_t* const arena, size_t const size, size_t const alignment);
 
-/** Allocates `size` bytes of memory with the default alignment. */
+/**
+ * @brief Allocates a block of memory with a default alignment.
+ *
+ * Under the hood, calls `arena_alloc_aligned` with an alignment of `ALLOHA_DEFAULT_ALIGNMENT`.
+ *
+ * @param arena The arena allocator responsible for the allocation.
+ * @param size The size, in bytes, of the new block of memory.
+ *
+ * @return Pointer to the newly allocated block of memory. This can be null if the allocation
+ *         failed.
+ */
 void* arena_alloc(arena_alloc_t* const arena, size_t const size);
 
 /**
- * Resizes a given block of memory that lies in the memory buffer managed by the arena allocator.
+ * @brief Resizes a given block of memory.
  *
- * @param arena A pointer to the arena allocator.
+ * @param arena A pointer to the arena allocator, whose memory should contain the block of memory
+ *        pointed by `old_mem`.
  * @param old_mem Pointer to the start of the memory block to be resized.
  * @param old_mem_size Size, in bytes, of `old_mem`.
  * @param new_size Desired size, in bytes, for the resizing of `old_mem`.
  * @param alignment The alignment to be used if a new allocation is needed.
  *
- * @return Pointer to the resized memory address. This function can return 0 if `old_mem` is an
+ * @return Pointer to the resized memory address. This function can return null if `old_mem` is an
  *         invalid address (null or lies outside of `arena`, or if the alignment is not a power of
  *         two.
  */
@@ -72,13 +106,22 @@ void* arena_resize(
     size_t const new_size,
     size_t const alignment);
 
-/** Free all memory managed by the arena. */
+/**
+ * @brief Free all memory managed by the arena.
+ *
+ * This function does not free any actual memory, it only restores the offsets of the arena to their
+ * original zeroed state. Thus allocated blocks will be simply overwritten in any new allocation.
+ *
+ * @param arena The arena allocator that should have its memory freed.
+ */
 void arena_free_all(arena_alloc_t* const arena);
 
 /** Destroys the memory owned by the arena. */
 void arena_destroy(arena_alloc_t* const arena);
 
 /**
+ * @brief Temporary arena memory allocator.
+ *
  * A temporary arena allocator has the purpose of saving the state of the current and previous
  * offsets of a given arena allocator. This allows for the user to quickly mess with the arena and
  * go back to the saved state.
@@ -93,14 +136,23 @@ typedef struct temporary_arena_alloc_s {
 } temporary_arena_alloc_t;
 
 /**
- * Creates an instance of a `temporary_arena_alloc_t` with the current state of the offsets of
- * `arena`.
+ * @brief Create a new temporary arena allocator.
+ *
+ * @param arena The arena allocator with the state that should be saved to the temporary arena
+ *        allocator.
+ *
+ * @return The resulting temporary arena allocator.
  */
 temporary_arena_alloc_t temporary_arena_init(arena_alloc_t* const arena);
 
 /**
+ * @brief Restore the state of the associated arena allocator.
+ *
  * Restores the offset state of the arena allocator saved in `tmp_arena` when `temporary_arena_init`
  * was called.
+ *
+ * @param tmp_arena The temporary arena allocator containing the saved offset states and the arena
+ *        allocator that should have its state restored.
  */
 void temporary_arena_end(temporary_arena_alloc_t* const tmp_arena);
 

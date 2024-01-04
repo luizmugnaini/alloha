@@ -9,7 +9,7 @@
 #include <stddef.h>  // for size_t
 #include <stdint.h>  // for uintptr_t
 
-#define DEFAULT_ALIGNMENT (2 * sizeof(void*))
+#define ALLOHA_DEFAULT_ALIGNMENT (2 * sizeof(void*))
 #define ALLOHA_TRUE 1
 #define ALLOHA_FALSE 0
 
