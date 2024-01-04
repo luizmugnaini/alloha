@@ -42,7 +42,8 @@ typedef struct arena_alloc_s {
  * @param buf Pointer to the block of memory that will be managed, but not owned, by the allocator.
  * @param buf_size Size, in bytes, of the provided block of memory `buf`.
  */
-void arena_init(arena_alloc_t* const arena, void* const buf, size_t const buf_size);
+void arena_init(
+    arena_alloc_t* const restrict arena, void* const restrict buf, size_t const buf_size);
 
 /** Creates an arena allocator with a given capacity in bytes. */
 arena_alloc_t arena_create(size_t const capacity);
@@ -70,8 +71,8 @@ void* arena_alloc(arena_alloc_t* const arena, size_t const size);
  *         two.
  */
 void* arena_resize(
-    arena_alloc_t* const arena,
-    void* const old_mem,
+    arena_alloc_t* const restrict arena,
+    void* const restrict old_mem,
     size_t const old_mem_size,
     size_t const new_size,
     size_t const alignment);
@@ -80,7 +81,7 @@ void* arena_resize(
 void arena_free_all(arena_alloc_t* const arena);
 
 /** Destroys the memory owned by the arena. */
-void arena_destroy(arena_alloc_t* arena);
+void arena_destroy(arena_alloc_t* const arena);
 
 /**
  * A temporary arena allocator has the purpose of saving the state of the current and previous

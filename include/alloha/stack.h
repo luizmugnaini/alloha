@@ -82,7 +82,8 @@ typedef struct stack_alloc_s {
  * @param buf Buffer that the stack will manage for allocations.
  * @param buf_size Size of `buf` in bytes, which will become the capacity of `stack`.
  */
-void stack_init(stack_alloc_t* const stack, void* const buf, size_t const buf_size);
+void stack_init(
+    stack_alloc_t* const restrict stack, void* const restrict buf, size_t const buf_size);
 
 /**
  * Creates a stack allocator that owns its memory.
@@ -143,7 +144,7 @@ int stack_pop(stack_alloc_t* const stack);
  *
  * @return Returns the status of the operation: true if it was successful, false otherwise.
  */
-int stack_free(stack_alloc_t* const stack, void* ptr);
+int stack_free(stack_alloc_t* const restrict stack, void* restrict ptr);
 
 /**
  * Free all allocated memory blocks of the stack.
