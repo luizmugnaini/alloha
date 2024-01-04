@@ -7,6 +7,7 @@
 #define STACK_HEADER
 
 #include <stddef.h>  // for size_t
+#include <stdint.h>  // for uint8_t
 
 /**
  * Header associated with each memory block in the stack allocator.
@@ -65,10 +66,10 @@ typedef struct stack_alloc_header_s {
  * may instantiate the allocator via `stack_init` with a valid pointer to the available memory.
  */
 typedef struct stack_alloc_s {
-    unsigned char* buf; /**< Buffer holding the memory managed by the allocator. */
-    size_t capacity;    /**< Capacity, in bytes, of the allocator. */
-    size_t offset;      /**< Pointer offset relative to `buf` to the memory address where the free
-                           space of `buf` starts. */
+    uint8_t* buf;    /**< Buffer holding the memory managed by the allocator. */
+    size_t capacity; /**< Capacity, in bytes, of the allocator. */
+    size_t offset;   /**< Pointer offset relative to `buf` to the memory address where the free
+                        space of `buf` starts. */
     size_t previous_offset; /**< Pointer offset relative to `buf` to the start of the memory
                                  address of the last allocated block (after its header). */
     int memory_owner;       /**< Whether the allocator owns the memory managed by the allocator. */

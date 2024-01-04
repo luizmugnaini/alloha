@@ -7,12 +7,7 @@
 #define ARENA_HEADER
 
 #include <stddef.h>  // for size_t
-#include <stdint.h>  // for uintptr_t
-
-#ifndef DEFAULT_ALIGNMENT
-/** Alignment used in case the user doesn't provide one. */
-#define DEFAULT_ALIGNMENT (2 * sizeof(void*))
-#endif  // DEFAULT_ALIGNMENT
+#include <stdint.h>  // for uintptr_t, uint8_t
 
 /** Arena allocator.
  *
@@ -27,9 +22,9 @@
  *    |------------ capacity --------------|
  */
 typedef struct arena_alloc_s {
-    unsigned char* buf; /**< Buffer containing the memory managed by the allocator. */
-    size_t capacity;    /**< Capacity, in bytes, of `buf` (in this case, the length of `buf`). */
-    size_t offset;      /**< Offset to the free memory space, relative to `buf`. */
+    uint8_t* buf;    /**< Buffer containing the memory managed by the allocator. */
+    size_t capacity; /**< Capacity, in bytes, of `buf` (in this case, the length of `buf`). */
+    size_t offset;   /**< Offset to the free memory space, relative to `buf`. */
     size_t previous_offset; /**< Offset to the start of the previously allocated memory region,
                                  relative to `buf`. */
     int memory_owner;       /**< Flag indicating if the allocator owns the memory. */

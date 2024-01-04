@@ -6,8 +6,8 @@
 #ifndef CORE_HEADER
 #define CORE_HEADER
 
-#include <stddef.h>
-#include <stdint.h>
+#include <stddef.h>  // for size_t
+#include <stdint.h>  // for uintptr_t
 
 #define DEFAULT_ALIGNMENT (2 * sizeof(void*))
 #define ALLOHA_TRUE 1
