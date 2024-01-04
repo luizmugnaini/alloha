@@ -10,6 +10,8 @@
 #include <stdint.h>  // for uint8_t
 
 /**
+ * @brief Stack allocator header.
+ *
  * Header associated with each memory block in the stack allocator.
  *
  * The header contains the following:
@@ -20,12 +22,14 @@
  *
  * The above can be summarized by the following diagram
  *
+ * ```md
  *           `previous_offset`
  *                  ^
  *                  |
  *  |previous header|previous memory|+++++++|header|memory|
  *                                  ^              ^
  *                                  |--`padding`---|
+ * ```
  */
 typedef struct stack_alloc_header_s {
     size_t padding; /**< Padding, in bytes, needed for the alignment of the memory block associated
@@ -37,24 +41,25 @@ typedef struct stack_alloc_header_s {
 } stack_alloc_header_t;
 
 /**
- * A stack memory allocator.
+ * @brief Stack memory allocator.
  *
  * The basic layout of the allocator looks like the following diagram:
  *
- *
- *          previous
- *           offset                          current
- *        for header 2                       offset
- *             ^                               ^
- *             |                               |
- *    |header 1|memory 1|++++|header 2|memory 2| free space |
- *    ^                 ^             ^                     ^
- *    |                 |---padding---|                     |
- *  start                             |                    end
- *    |                            previous                 |
- *    |                             offset                  |
- *    |                                                     |
- *    |--------------------- capacity ----------------------|
+ * ```md
+ *         previous
+ *          offset                          current
+ *       for header 2                       offset
+ *            ^                               ^
+ *            |                               |
+ *   |header 1|memory 1|++++|header 2|memory 2| free space |
+ *   ^                 ^             ^                     ^
+ *   |                 |---padding---|                     |
+ * start                             |                    end
+ *   |                            previous                 |
+ *   |                             offset                  |
+ *   |                                                     |
+ *   |--------------------- capacity ----------------------|
+ * ```
  *
  * Where each block of memory is preceded by a padding that comprises both the alignment needed for
  * the memory block and its corresponding header. This header will store the size of the padding and
@@ -76,6 +81,8 @@ typedef struct stack_alloc_s {
 } stack_alloc_t;
 
 /**
+ * @brief Initialize an existing stack allocator.
+ *
  * Initializes a stack allocator that will take care of managing an externally allocated memory
  * block.
  *
@@ -87,15 +94,19 @@ void stack_init(
     stack_alloc_t* const restrict stack, void* const restrict buf, size_t const buf_size);
 
 /**
- * Creates a stack allocator that owns its memory.
+ * @brief Create a new stack allocator.
+ *
+ * The newly created stack allocator will own its memory, and it will be the responsibility of the
+ * user to call `stack_destroy` in order to free the allocated memory.
  *
  * @param capacity Capacity, in bytes, that the stack allocator should have.
+ *
  * @return The resulting stack allocator.
  */
 stack_alloc_t stack_create(size_t const capacity);
 
 /**
- * Allocates a block of memory of a given size and alignment.
+ * @brief Allocate a block of memory satisfying a given alignment.
  *
  * @param stack Stack allocator that will contain and manage the new block of memory. Make sure the
  *        pointer to the stack is valid, otherwise you'll get a panic.
@@ -111,7 +122,9 @@ stack_alloc_t stack_create(size_t const capacity);
 void* stack_alloc_aligned(stack_alloc_t* const stack, size_t const size, size_t const alignment);
 
 /**
- * Allocates a block of memory of a given size using a default alignment.
+ * @brief Allocate a block of memory satisfying a default alignment.
+ *
+ * Under the hood, calls `stack_alloc_aligned` with an alignment of `ALLOHA_DEFAULT_ALIGNMENT`.
  *
  * @param stack Stack allocator that will contain and manage the new block of memory. Make sure the
  *        pointer to the stack is valid, otherwise you'll get a panic.
@@ -125,17 +138,23 @@ void* stack_alloc_aligned(stack_alloc_t* const stack, size_t const size, size_t 
 void* stack_alloc(stack_alloc_t* const stack, size_t const size);
 
 /**
- * Frees the last memory block allocated by the given stack.
+ * @brief Frees the last memory block allocated by the given stack.
  *
- * This function won't panic if the stack is empty, it will simply return.
+ * This function won't panic if the stack is empty, it will simply return `ALLOHA_FALSE`.
  *
  * @param stack Pointer to the stack containing the memory block to be freed. If this pointer is
  *        null, the program will panic.
+ *
+ * @return Returns `ALLOHA_TRUE` if the pop operation was successful, otherwise returns
+ *         `ALLOHA_FALSE`.
  */
 int stack_pop(stack_alloc_t* const stack);
 
 /**
- * Free all memory blocks up until the specified block pointed at by `ptr`.
+ * @brief Free all memory blocks up until the specified memory block.
+ *
+ * The stack allocator won't destroy its corresponding memory, it will simply restore the offsets
+ * accordingly and the memory will be available for consequent allocations.
  *
  * @param stack Pointer to the stack containing the blocks of memory to be freed. If this pointer is
  *        null, the program will panic.
@@ -148,10 +167,10 @@ int stack_pop(stack_alloc_t* const stack);
 int stack_free(stack_alloc_t* const restrict stack, void* restrict ptr);
 
 /**
- * Free all allocated memory blocks of the stack.
+ * @brief Free all allocated memory blocks of the stack.
  *
- * This resets both the `offset` and `previous_offset` of the stack. Notice that this won't destroy
- * the stack, just reset it.
+ * This resets all offsets of the stack. Notice that this won't destroy the stack, just reset its
+ * original state, hence the associated memory will still be available for consequent allocations.
  *
  * @param stack Pointer to the stack that should have all of its memory freed. If this pointer is
  *        null, the program will panic.
@@ -159,7 +178,9 @@ int stack_free(stack_alloc_t* const restrict stack, void* restrict ptr);
 void stack_free_all(stack_alloc_t* const stack);
 
 /**
- * Destroy the memory managed by the stack
+ * @brief Destroy the memory managed by the stack
+ *
+ * @param stack Pointer to the stack that should have its memory destroyed.
  */
 void stack_destroy(stack_alloc_t* const stack);
 

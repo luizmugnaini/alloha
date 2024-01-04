@@ -5,9 +5,9 @@
  */
 #include <alloha/core.h>
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <assert.h>  // for assert
+#include <stddef.h>  // for size_t
+#include <stdint.h>  // for uintptr_t
 
 int is_power_of_two(unsigned const x) {
     return x > 0 && !(x & (x - 1));
