@@ -22,3 +22,4 @@ cmake --build build
 - [Memory allocation strategies series](https://www.gingerbill.org/series/memory-allocation-strategies/), by gingerBill.
 - [Memory management reference](https://www.memorymanagement.org/index.html).
 - [mtrebi/memory-allocators](https://github.com/mtrebi/memory-allocators)
+- [microsoft/mimalloc](https://github.com/microsoft/mimalloc)
