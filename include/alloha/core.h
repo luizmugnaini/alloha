@@ -50,6 +50,9 @@ uintptr_t align_forward(uintptr_t ptr, size_t const alignment);
  *         the header and satisfies all alignment requirements.
  */
 size_t padding_with_header(
-    uintptr_t ptr, size_t const alignment, size_t const header_size, size_t const header_alignment);
+    uintptr_t    ptr,
+    size_t const alignment,
+    size_t const header_size,
+    size_t const header_alignment);
 
 #endif  // CORE_HEADER

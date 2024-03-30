@@ -5,14 +5,47 @@ AccessModifierOffset: -4
 IndentWidth: 4
 IndentCaseLabels: true
 NamespaceIndentation: All
+MaxEmptyLinesToKeep: 1
+ColumnLimit: 100
+
+# No single line simplification
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
+
+# Strings
+BreakStringLiterals: true
 AlwaysBreakBeforeMultilineStrings: false
-MaxEmptyLinesToKeep: 1
-ColumnLimit: 100
+
+# After open brackets
 AlignAfterOpenBracket: AlwaysBreak
+
+# Lengthy math operation
 AlignOperands: Align
-BreakConstructorInitializers: BeforeComma
+
+# Pointer should go with the type
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# Alignment insider preprocessor directives like #if
+IndentPPDirectives: AfterHash
+
+# Initializers
+BreakConstructorInitializers: AfterColon
+
+# Arguments
 BinPackArguments: false
 BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# Consecutive stuff alignment
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros: Consecutive
+
+# Comment alignment
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+

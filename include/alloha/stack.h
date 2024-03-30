@@ -71,10 +71,10 @@ typedef struct stack_alloc_header_s {
  * may instantiate the allocator via `stack_init` with a valid pointer to the available memory.
  */
 typedef struct stack_alloc_s {
-    uint8_t* buf;    /**< Buffer holding the memory managed by the allocator. */
-    size_t capacity; /**< Capacity, in bytes, of the allocator. */
-    size_t offset;   /**< Pointer offset relative to `buf` to the memory address where the free
-                        space of `buf` starts. */
+    uint8_t* buf;      /**< Buffer holding the memory managed by the allocator. */
+    size_t   capacity; /**< Capacity, in bytes, of the allocator. */
+    size_t   offset;   /**< Pointer offset relative to `buf` to the memory address where the free
+                          space of `buf` starts. */
     size_t previous_offset; /**< Pointer offset relative to `buf` to the start of the memory
                                  address of the last allocated block (after its header). */
     int memory_owner;       /**< Whether the allocator owns the memory managed by the allocator. */
@@ -91,7 +91,9 @@ typedef struct stack_alloc_s {
  * @param buf_size Size of `buf` in bytes, which will become the capacity of `stack`.
  */
 void stack_init(
-    stack_alloc_t* const restrict stack, void* const restrict buf, size_t const buf_size);
+    stack_alloc_t* const restrict stack,
+    void* const restrict buf,
+    size_t const buf_size);
 
 /**
  * @brief Create a new stack allocator.

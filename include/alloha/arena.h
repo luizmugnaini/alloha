@@ -23,12 +23,12 @@
  *    |------------ capacity --------------|
  */
 typedef struct arena_alloc_s {
-    uint8_t* buf;    /**< Buffer containing the memory managed by the allocator. */
-    size_t capacity; /**< Capacity, in bytes, of `buf` (in this case, the length of `buf`). */
-    size_t offset;   /**< Offset to the free memory space, relative to `buf`. */
-    size_t previous_offset; /**< Offset to the start of the previously allocated memory region,
-                                 relative to `buf`. */
-    int memory_owner;       /**< Flag indicating if the allocator owns the memory. */
+    uint8_t* buf;      /**< Buffer containing the memory managed by the allocator. */
+    size_t   capacity; /**< Capacity, in bytes, of `buf` (in this case, the length of `buf`). */
+    size_t   offset;   /**< Offset to the free memory space, relative to `buf`. */
+    size_t   previous_offset; /**< Offset to the start of the previously allocated memory region,
+                                   relative to `buf`. */
+    int memory_owner;         /**< Flag indicating if the allocator owns the memory. */
 } arena_alloc_t;
 
 /**
@@ -39,7 +39,9 @@ typedef struct arena_alloc_s {
  * @param buf_size Size, in bytes, of the provided block of memory `buf`.
  */
 void arena_init(
-    arena_alloc_t* const restrict arena, void* const restrict buf, size_t const buf_size);
+    arena_alloc_t* const restrict arena,
+    void* const restrict buf,
+    size_t const buf_size);
 
 /**
  * @brief Create a new arena allocator.
