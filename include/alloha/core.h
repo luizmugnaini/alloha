@@ -48,6 +48,10 @@ bool is_power_of_two(u32 x);
 /// Subtract two values of unsigned size type avoiding underflow.
 usize usize_wrap_sub(usize lhs, usize rhs);
 
+u8* ptr_add(u8 const* ptr, usize offset);
+
+u8* ptr_sub(u8 const* ptr, usize offset);
+
 /// Safely copy memory from one region to the other.
 void memory_copy(u8* dest, u8 const* src, usize size);
 

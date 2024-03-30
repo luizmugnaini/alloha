@@ -15,6 +15,14 @@ usize usize_wrap_sub(usize lhs, usize rhs) {
     return (res <= 0) ? 0 : (usize)res;
 }
 
+u8* ptr_add(u8 const* ptr, usize offset) {
+    return ptr ? (u8*)((uptr)ptr + offset) : NULL;
+}
+
+u8* ptr_sub(u8 const* ptr, usize offset) {
+    return ptr ? (u8*)((uptr)ptr - offset) : NULL;
+}
+
 void memory_copy(u8* dest, u8 const* src, usize size) {
     if (dest == NULL || src == NULL) {
         return;

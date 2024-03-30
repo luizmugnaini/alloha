@@ -1,132 +1,131 @@
-/**
- * @brief Stack memory allocator implementation.
- * @file stack.c
- * @author Luiz G. Mugnaini Anselmo <luizmugnaini@gmail.com>
- */
+/// Stack memory allocator implementation.
+///
+/// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
 #include <alloha/stack.h>
 
-#include <alloha/core.h>  // for is_power_of_two, ALLOHA_DEFAULT_ALIGNMENT, ALLOHA_FALSE, ALLOHA_TRUE
-#include <assert.h>       // for assert
-#include <stddef.h>       // for size_t
-#include <stdint.h>       // for uintptr_t, uint8_t
-#include <stdio.h>        // for fprintf, stderr
-#include <stdlib.h>       // for malloc, free
+#include <alloha/core.h>
+#include <assert.h>
+#include <stdalign.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-static size_t const k_stack_header_size = sizeof(stack_alloc_header_t);
-static size_t const k_stack_header_alignment = sizeof(size_t);
-
-void stack_init(
-    stack_alloc_t* const restrict stack, void* const restrict buf, size_t const buf_size) {
-    assert(stack && "stack_init called with a invalid stack allocator");
-    assert(buf && "stack_init called with an invalid memory buffer");
-    stack->buf = (uint8_t*)buf;
-    stack->capacity = buf_size;
-    stack->offset = 0;
-    stack->previous_offset = 0;
-    stack->memory_owner = ALLOHA_FALSE;
-}
-
-stack_alloc_t stack_create(size_t const capacity) {
-    assert(capacity != 0 && "stack_create called with zero capacity");
-    uint8_t* const buf = (uint8_t*)malloc(capacity);
-    assert(buf && "Unable to allocate memory for the stack allocator");
-    return (stack_alloc_t){
-        .buf = buf,
-        .capacity = capacity,
-        .offset = 0,
-        .memory_owner = ALLOHA_TRUE,
+stack_t stack_new(usize capacity, u8* buf) {
+    if (capacity != 0) {
+        assert(buf && "stack_new called with inconsistent data: non-null capacity and null buffer");
+    }
+    return (stack_t){
+        .buf             = buf,
+        .capacity        = capacity,
+        .offset          = 0,
+        .previous_offset = 0,
     };
 }
 
-void* stack_alloc_aligned(stack_alloc_t* const stack, size_t const size, size_t const alignment) {
-    assert(stack && "stack_alloc_aligned called with an invalid stack allocator");
-    assert(size != 0 && "stack_alloc_aligned called with a request for a zero sized allocation");
+void stack_init(stack_t* restrict stack, usize capacity, u8* restrict buf) {
+    if (!stack) {
+        return;
+    }
+    if (capacity != 0) {
+        assert(
+            buf && "stack_init called with inconsistent data: non-null capacity and null buffer");
+    }
+    stack->buf             = buf;
+    stack->capacity        = capacity;
+    stack->offset          = 0;
+    stack->previous_offset = 0;
+}
 
-    uintptr_t const current_addr = (uintptr_t)stack->buf + (uintptr_t)stack->offset;
-    size_t const padding =
-        padding_with_header(current_addr, alignment, k_stack_header_size, k_stack_header_alignment);
-    if (padding + size > stack->capacity - stack->offset) {
+u8* stack_alloc_aligned(stack_t* const stack, size_t const size, size_t const alignment) {
+    if (!stack || stack->capacity == 0 || size == 0) {
+        return NULL;
+    }
+
+    u8* const   free_mem           = ptr_add(stack->buf, stack->offset);
+    usize const available_capacity = usize_wrap_sub(stack->capacity, stack->offset);
+
+    u32 const padding = padding_with_header(
+        (uptr)free_mem,
+        alignment,
+        sizeof(stack_header_t),
+        alignof(stack_header_t));
+    usize const required_size = (usize)padding + size;
+
+    if (required_size > available_capacity) {
         fprintf(
             stderr,
             "Unable to allocate %zu bytes of memory (%zu bytes required), only %zu "
             "remaining.\n",
             size,
             padding + size,
-            stack->capacity - stack->offset);
+            usize_wrap_sub(stack->capacity, stack->offset));
         return 0;
     }
 
-    // Get the address pointer and write its header to memory.
-    uintptr_t const requested_addr = current_addr + (uintptr_t)padding;
-    stack_alloc_header_t* const requested_addr_header =
-        (stack_alloc_header_t*)(requested_addr - (uintptr_t)k_stack_header_size);
-    requested_addr_header->padding = padding;
-    requested_addr_header->previous_offset = stack->previous_offset;
+    u8* const new_block = ptr_add(free_mem, padding);
 
-    stack->previous_offset = stack->offset + padding;  // offset to `requested_addr`
-    stack->offset += padding + size;
+    // Write to the header associated with the new block of memory.
+    stack_header_t* const new_header = (stack_header_t*)ptr_sub(new_block, sizeof(stack_header_t));
+    new_header->padding              = padding;
+    new_header->capacity             = size;
+    new_header->previous_offset      = stack->previous_offset;
 
-    return (void*)requested_addr;
+    // Update the stack offsets.
+    stack->previous_offset = stack->offset + padding;
+    stack->offset += required_size;
+
+    return new_block;
 }
 
-void* stack_alloc(stack_alloc_t* const stack, size_t const size) {
+u8* stack_alloc(stack_t* const stack, usize const size) {
     return stack_alloc_aligned(stack, size, ALLOHA_DEFAULT_ALIGNMENT);
 }
 
-int stack_pop(stack_alloc_t* const stack) {
-    assert(stack && "stack_pop called with an invalid stack allocator");
-    if (stack->offset == 0) {
-        return ALLOHA_FALSE;
+bool stack_pop(stack_t* stack) {
+    if (!stack || stack->offset == 0) {
+        return false;
     }
 
-    uintptr_t const last_addr = (uintptr_t)stack->buf + (uintptr_t)stack->previous_offset;
-    stack_alloc_header_t const* const last_addr_header =
-        (stack_alloc_header_t const*)(last_addr - (uintptr_t)k_stack_header_size);
-    stack->offset = stack->previous_offset - last_addr_header->padding;
-    stack->previous_offset = last_addr_header->previous_offset;
-    return ALLOHA_TRUE;
+    // Find info about the current top memory block.
+    u8 const* const             top        = ptr_add(stack->buf, stack->previous_offset);
+    stack_header_t const* const top_header = (stack_header_t*)ptr_sub(top, sizeof(stack_header_t));
+
+    // Update the stack.
+    stack->offset          = stack->previous_offset - top_header->padding;
+    stack->previous_offset = top_header->previous_offset;
+    return true;
 }
 
-int stack_free(stack_alloc_t* const restrict stack, void* restrict ptr) {
-    assert(stack && "stack_free called with an invalid stack allocator");
-    if (!ptr) {
-        fprintf(stderr, "stack_free requested to free a null pointer.\n");
-        return ALLOHA_FALSE;
+bool stack_clear_at(stack_t* restrict stack, u8* restrict block) {
+    if (!stack || !block) {
+        return false;
     }
 
-    uintptr_t const addr = (uintptr_t)ptr;
-    uintptr_t const start_addr = (uintptr_t)stack->buf;
-    uintptr_t const end_addr = start_addr + (uintptr_t)stack->capacity;
-    if (!(start_addr <= addr && addr < end_addr)) {
+    if (!(stack->buf <= block && block < ptr_add(stack->buf, stack->capacity))) {
         fprintf(
             stderr,
             "stack_free requested to free a block of memory outside of the range of the given "
             "stack allocator.\n");
         return ALLOHA_FALSE;
     }
-    if (addr >= start_addr + (uintptr_t)stack->previous_offset) {
+
+    if (block >= ptr_add(stack->buf, stack->previous_offset)) {
         fprintf(stderr, "stack_free requested to free an already free memory block");
         return ALLOHA_FALSE;
     }
 
-    stack_alloc_header_t const* const header_addr =
-        (stack_alloc_header_t const*)(addr - (uintptr_t)k_stack_header_size);
-    stack->offset = (size_t)addr - header_addr->padding - (size_t)start_addr;
-    stack->previous_offset = header_addr->previous_offset;
+    stack_header_t const* const block_header =
+        (stack_header_t const*)ptr_sub(block, sizeof(stack_header_t));
+    stack->offset =
+        usize_wrap_sub(usize_wrap_sub((uptr)block, block_header->padding), (usize)stack->buf);
+    stack->previous_offset = block_header->previous_offset;
 
     return ALLOHA_TRUE;
 }
 
-void stack_free_all(stack_alloc_t* const stack) {
-    assert(stack && "stack_free_all called with an invalid stack allocator");
-    stack->offset = 0;
-    stack->previous_offset = 0;
-}
-
-void stack_destroy(stack_alloc_t* const stack) {
-    assert(stack && "stack_free_all called with an invalid stack allocator");
-    if (stack->memory_owner && stack->buf) {
-        free(stack->buf);
-        *stack = (stack_alloc_t){0};
+void stack_clear(stack_t* stack) {
+    if (!stack) {
+        return;
     }
+    stack->offset          = 0;
+    stack->previous_offset = 0;
 }
