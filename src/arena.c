@@ -98,7 +98,16 @@ void* arena_resize(
 
     // If the memory is the previously allocated, just adjust the offset.
     if (old_mem_bytes == arena->buf + arena->previous_offset) {
-        arena->offset = arena->previous_offset + new_size;
+        size_t const new_offset = arena->previous_offset + new_size;
+        if (new_offset > arena->capacity) {
+            fprintf(
+                stderr,
+                "Unable to reallocate block from %zu bytes to %zu bytes.\n",
+                old_mem_size,
+                new_size);
+            return 0;
+        }
+        arena->offset = new_offset;
         return old_mem;
     }
 
@@ -108,7 +117,7 @@ void* arena_resize(
     return new_mem;
 }
 
-void arena_free_all(arena_alloc_t* const arena) {
+void arena_clear(arena_alloc_t* const arena) {
     assert(arena && "aren_free_all called with an invalid arena allocator");
     arena->offset = 0;
     arena->previous_offset = 0;

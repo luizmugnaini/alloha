@@ -10,7 +10,7 @@
 #include <stdint.h>  // for uintptr_t, uint8_t
 
 /**
- * @brief Arena (linear) memory allocator.
+ * @brief Arena memory allocator.
  *
  * The allocator memory layout looks like the following diagram:
  *
@@ -104,7 +104,7 @@ void* arena_resize(
  *
  * @param arena The arena allocator that should have its memory freed.
  */
-void arena_free_all(arena_alloc_t* const arena);
+void arena_clear(arena_alloc_t* const arena);
 
 /** Destroys the memory owned by the arena. */
 void arena_destroy(arena_alloc_t* const arena);
