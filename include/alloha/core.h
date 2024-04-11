@@ -42,6 +42,8 @@ typedef char const* str_ptr_t;
 #define ALLOHA_FALSE 0
 #define ALLOHA_TRUE  1
 
+#define alignof(x) _Alignof(x)
+
 /// Check if a given number is a power of two.
 bool is_power_of_two(u32 x);
 
