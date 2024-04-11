@@ -4,11 +4,12 @@ This project contains the implementation of classic memory allocators from scrat
 
 ## Building
 
-Our build system is based on CMake, and the C compiler of choice is Clang. In order to generate the CMake build system, you may
-run the following:
+The build system is based on CMake. You can use any of the major three compilers: Clang, GCC,
+or MSVC. For instance, if you want to compile with Clang and use Ninja as your generator, you can
+run
 
 ```bash
-cmake -S . -B build -DCMAKE_C_COMPILER=clang
+cmake -S . -B build -DCMAKE_C_COMPILER=clang -G=Ninja
 ```
 
 Now you can simply build the project with:
