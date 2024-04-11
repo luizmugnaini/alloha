@@ -1,6 +1,7 @@
 /// Stack memory allocator header file.
 ///
 /// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #pragma once
 
 #include <alloha/core.h>

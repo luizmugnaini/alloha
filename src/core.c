@@ -1,6 +1,7 @@
 /// Implementation of the core utilities for the implementation of the allocators.
 ///
 /// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #include <alloha/core.h>
 
 #include <assert.h>

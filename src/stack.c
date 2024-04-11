@@ -1,6 +1,7 @@
 /// Stack memory allocator implementation.
 ///
 /// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #include <alloha/stack.h>
 
 #include <alloha/core.h>

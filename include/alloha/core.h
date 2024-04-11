@@ -1,6 +1,7 @@
 /// Common functions and variables used by the allocators.
 ///
 /// Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #pragma once
 
 #include <stdbool.h>

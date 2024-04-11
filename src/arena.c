@@ -1,6 +1,7 @@
 /// Arena memory allocator implementation.
 ///
 /// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #include <alloha/arena.h>
 
 #include <alloha/core.h>

@@ -1,8 +1,7 @@
-/**
- * @brief Tests for the arena allocator.
- * @file test_arena.c
- * @author Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
- */
+/// Arena memory allocator tests.
+///
+/// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>

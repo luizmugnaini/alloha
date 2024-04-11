@@ -1,3 +1,7 @@
+/// Stack memory allocator tests.
+///
+/// Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
+
 #include <alloha/stack.h>
 
 #include <assert.h>
