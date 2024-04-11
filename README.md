@@ -18,6 +18,14 @@ Now you can simply build the project with:
 cmake --build build
 ```
 
+## Tests
+
+Now that you've compiled and built the project, you can run the tests using CTest via
+
+```bash
+ctest --test-dir build
+```
+
 ## References and Similar Projects
 
 - [Memory allocation strategies series](https://www.gingerbill.org/series/memory-allocation-strategies/), by gingerBill.

@@ -1,6 +1,7 @@
 # ------------------------------------------------------------------------------
 # Project description
 # ------------------------------------------------------------------------------
+
 cmake_minimum_required(VERSION 3.22)
 
 project(
@@ -18,6 +19,11 @@ message(STATUS "Linker executable: ${CMAKE_LINKER}")
 
 # Enable LSP integration with the project
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(status "Enabling tests")
+    enable_testing()
+endif()
 
 # ------------------------------------------------------------------------------
 # GCC configuration
@@ -209,4 +215,5 @@ foreach(t IN LISTS TESTS)
     add_executable(${t} "${PROJECT_SOURCE_DIR}/tests/${t}.c")
     target_compile_options(${t} PRIVATE ${ALLOHA_FLAGS} ${ALLOHA_SAN_FLAGS})
     target_link_libraries(${t} PRIVATE ${ALLOHA_SAN_FLAGS} alloha)
+    add_test(NAME ${t} COMMAND ${t})
 endforeach()
