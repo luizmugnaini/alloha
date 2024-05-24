@@ -1,12 +1,14 @@
 # ------------------------------------------------------------------------------
-# Project description
+# Alloha library CMake build file.
+# 
+# Author: Luiz G. Mugnaini A. <luizmugnaini@gmail.com>
 # ------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.22)
 
 project(
     alloha
-    VERSION 0.0.1
+    VERSION 0.0.2
     LANGUAGES C
 )
 
@@ -193,6 +195,7 @@ message(STATUS "Mina sanitizer flags: ${MINA_CXX_SAN_FLAGS}")
 # alloha library
 # ------------------------------------------------------------------------------
 
+# Output directory for the binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_library(
