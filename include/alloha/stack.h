@@ -21,7 +21,7 @@
 ///
 /// where "header" represents this current header, and "memory" represents the memory block
 /// associated to this header.
-typedef struct stack_header_s {
+struct stack_header {
     /// Padding, in bytes, needed for the alignment of the memory block associated with the header.
     /// The padding accounts for both the size of the header and the needed alignment.
     usize padding;
@@ -32,7 +32,7 @@ typedef struct stack_header_s {
     /// Pointer offset, relative to the stack allocator memory  block, to the start of the memory
     /// address of the last allocated block (after its header).
     usize previous_offset;
-} stack_header_t;
+};
 
 /// Stack memory allocator.
 ///
@@ -72,7 +72,7 @@ typedef struct stack_header_s {
 /// free it via a `stack_clear_at`, you'll end up with a dangling pointer and
 /// use-after-free problems may arise if you later read from this pointer. This goes to say that
 /// the user should know how to correctly handle their memory reads and writes.
-typedef struct stack_s {
+struct stack {
     /// Pointer to the memory region managed by the allocator.
     u8* buf;
 
@@ -85,14 +85,14 @@ typedef struct stack_s {
     /// Pointer offset relative to the start of the memory address of the last allocated block
     /// (after its header).
     usize previous_offset;
-} stack_t;
+};
 
 /// Create a new stack allocator.
 ///
 /// Parameters:
 ///     * `capacity`: Size of `buf` in bytes, which will become the capacity of `stack`.
 ///     * `buf`: Buffer that the stack will manage for allocations.
-stack_t stack_new(usize capacity, u8* buf);
+struct stack stack_new(usize capacity, u8* buf);
 
 /// Initialize an existing stack allocator.
 ///
@@ -103,7 +103,7 @@ stack_t stack_new(usize capacity, u8* buf);
 ///     * `stack`: Stack allocator to be initialized.
 ///     * `capacity`: Size of `buf` in bytes, which will become the capacity of `stack`.
 ///     * `buf`: Buffer that the stack will manage for allocations.
-void stack_init(stack_t* restrict stack, usize capacity, u8* restrict buf);
+void stack_init(struct stack* restrict stack, usize capacity, u8* restrict buf);
 
 /// Allocate a block of memory satisfying a given alignment.
 ///
@@ -113,7 +113,7 @@ void stack_init(stack_t* restrict stack, usize capacity, u8* restrict buf);
 ///     * `size`: Size, in bytes, of the new memory block.
 ///     * `alignment`: The needed alignment of the new memory block. This number should always be a
 ///                    power of two, otherwise the program will panic.
-u8* stack_alloc_aligned(stack_t* stack, usize size, usize alignment);
+u8* stack_alloc_aligned(struct stack* stack, usize size, usize alignment);
 
 /// Allocate a block of memory satisfying a default alignment.
 ///
@@ -123,7 +123,7 @@ u8* stack_alloc_aligned(stack_t* stack, usize size, usize alignment);
 ///     * `stack`: Stack allocator that will contain and manage the new block of memory. Make sure
 ///                the pointer to the stack is valid, otherwise you'll get a panic.
 ///     * `size`: Size, in bytes, of the new memory block.
-u8* stack_alloc(stack_t* stack, usize size);
+u8* stack_alloc(struct stack* stack, usize size);
 
 /// Clear the last memory block allocated by the given stack.
 ///
@@ -134,7 +134,7 @@ u8* stack_alloc(stack_t* stack, usize size);
 ///                null, the program will panic.
 ///
 /// Return: state of the operation.
-bool stack_pop(stack_t* stack);
+bool stack_pop(struct stack* stack);
 
 /// Clear all memory blocks up until the specified memory block.
 ///
@@ -149,7 +149,7 @@ bool stack_pop(stack_t* stack);
 ///                or already free, the program return false and won't panic.
 ///
 /// Return: status of the operation.
-bool stack_clear_at(stack_t* restrict stack, u8* restrict block);
+bool stack_clear_at(struct stack* restrict stack, u8* restrict block);
 
 /// Clear all allocated memory blocks of the stack.
 ///
@@ -159,4 +159,4 @@ bool stack_clear_at(stack_t* restrict stack, u8* restrict block);
 /// Parameters:
 ///     * `stack`: Pointer to the stack that should have all of its memory freed. If this pointer is
 ///               null, the program will panic.
-void stack_clear(stack_t* stack);
+void stack_clear(struct stack* stack);

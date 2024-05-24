@@ -10,18 +10,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-arena_t arena_new(usize capacity, u8* buf) {
+struct arena arena_new(usize capacity, u8* buf) {
     if (capacity != 0) {
         assert(buf && "arena_new called with inconsistent data: non-null size but null buffer");
     }
-    return (arena_t){
+    return (struct arena){
         .buf      = buf,
         .capacity = capacity,
         .offset   = 0,
     };
 }
 
-void arena_init(arena_t* restrict arena, usize capacity, u8* restrict buf) {
+void arena_init(struct arena* restrict arena, usize capacity, u8* restrict buf) {
     if (!arena) {
         return;
     }
@@ -34,7 +34,7 @@ void arena_init(arena_t* restrict arena, usize capacity, u8* restrict buf) {
     arena->offset   = 0;
 }
 
-u8* arena_alloc_aligned(arena_t* arena, usize size, u32 alignment) {
+u8* arena_alloc_aligned(struct arena* arena, usize size, u32 alignment) {
     if (!arena || arena->capacity == 0 || size == 0) {
         return NULL;
     }
@@ -58,12 +58,12 @@ u8* arena_alloc_aligned(arena_t* arena, usize size, u32 alignment) {
     return (u8*)new_block_addr;
 }
 
-u8* arena_alloc(arena_t* arena, usize size) {
+u8* arena_alloc(struct arena* arena, usize size) {
     return arena_alloc_aligned(arena, size, ALLOHA_DEFAULT_ALIGNMENT);
 }
 
 u8* arena_realloc(
-    arena_t* restrict arena,
+    struct arena* restrict arena,
     u8* restrict block,
     usize current_capacity,
     usize new_capacity,
@@ -123,42 +123,42 @@ u8* arena_realloc(
     }
 
     // Copy the existing data to the new block.
-    usize const copy_size = ALLOHA_MIN(current_capacity, new_capacity);
+    usize copy_size = alloha_min(current_capacity, new_capacity);
     memory_copy(new_mem, block, copy_size);
 
     return new_mem;
 }
 
-void arena_clear(arena_t* const arena) {
+void arena_clear(struct arena* arena) {
     if (!arena) {
         return;
     }
     arena->offset = 0;
 }
 
-scratch_arena_t scratch_arena_start(arena_t* arena) {
+struct scratch_arena scratch_arena_start(struct arena* arena) {
     assert(arena && "scratch_arena_start called with null arena");
-    return (scratch_arena_t){
+    return (struct scratch_arena){
         .parent       = arena,
         .saved_offset = arena->offset,
     };
 }
 
-scratch_arena_t scratch_arena_decouple(scratch_arena_t const* scratch) {
+struct scratch_arena scratch_arena_decouple(struct scratch_arena const* scratch) {
     assert(
         (scratch && scratch->parent) && "scratch_arena_decouple called with a null scratch arena");
-    return (scratch_arena_t){
+    return (struct scratch_arena){
         .parent       = scratch->parent,
         .saved_offset = scratch->parent->offset,
     };
 }
 
-void scratch_arena_end(scratch_arena_t* scratch) {
+void scratch_arena_end(struct scratch_arena* scratch) {
     if (!scratch || !scratch->parent) {
         return;
     }
-    scratch->parent->offset = scratch->saved_offset;
 
-    scratch->parent       = NULL;
-    scratch->saved_offset = 0;
+    scratch->parent->offset = scratch->saved_offset;
+    scratch->parent         = NULL;
+    scratch->saved_offset   = 0;
 }

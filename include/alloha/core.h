@@ -29,31 +29,24 @@ typedef intptr_t  iptr;
 typedef float  f32;
 typedef double f64;
 
-/// Immutable zero-terminated string type
-typedef char const* str_ptr_t;
-
 /// The default alignment used when no specific alignment is specified.
 #define ALLOHA_DEFAULT_ALIGNMENT (2 * sizeof(void*))
 
-#define ALLOHA_MIN(x, y) (x <= y) ? x : y
-#define ALLOHA_MAX(x, y) (x >= y) ? x : y
+#define alloha_min(x, y) (((x) <= (y)) ? (x) : (y))
+#define alloha_max(x, y) (((x) >= (y)) ? (x) : (y))
 
-#define ALLOHA_UNUSED_RESULT(res) ((void)res)
-
-#define ALLOHA_FALSE 0
-#define ALLOHA_TRUE  1
+#define alloha_discard(res) ((void)res)
 
 #define alignof(x) _Alignof(x)
 
 /// Check if a given number is a power of two.
-bool is_power_of_two(u32 x);
+#define alloha_is_power_of_two(x) (((x) > 0) && !((x) & ((x)-1)))
 
 /// Subtract two values of unsigned size type avoiding underflow.
 usize usize_wrap_sub(usize lhs, usize rhs);
 
-u8* ptr_add(u8 const* ptr, usize offset);
-
-u8* ptr_sub(u8 const* ptr, usize offset);
+#define alloha_ptr_add(ptr, offset) ((ptr) ? ((ptr) + (offset)) : NULL)
+#define alloha_ptr_sub(ptr, offset) ((ptr) ? ((ptr) - (offset)) : NULL)
 
 /// Safely copy memory from one region to the other.
 void memory_copy(u8* dest, u8 const* src, usize size);
@@ -72,7 +65,7 @@ uptr align_forward(uptr ptr, u32 alignment);
 ///
 /// Parameters:
 ///     * `ptr`: Current address.
-///     * `aligment`: Memory alignment requirement for the memory being allocated.
+///     * `alignment`: Memory alignment requirement for the memory being allocated.
 ///     * `header_size`: Size of the header associated with the new block of memory to be allocated.
 ///     * `header_alignment`: Memory alignment required for the header.
 ///

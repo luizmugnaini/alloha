@@ -49,14 +49,14 @@
 /// free(mem);
 /// ```
 /// You should also check if `malloc` returned a valid pointer.
-typedef struct arena_s {
+struct arena {
     u8*   buf;       ///< Buffer containing the memory managed by the allocator.
     usize capacity;  ///< Capacity, in bytes, of `buf`.
     usize offset;    ///< Offset to the free memory space, relative to `buf`.
-} arena_t;
+};
 
 /// Create a new arena.
-arena_t arena_new(usize capacity, u8* buf);
+struct arena arena_new(usize capacity, u8* buf);
 
 /// Initialize an existing arena allocator.
 ///
@@ -65,7 +65,7 @@ arena_t arena_new(usize capacity, u8* buf);
 ///     * `capacity`: Size, in bytes, of the provided block of memory `buf`.
 ///     * `buf`: Pointer to the block of memory that will be managed, but not owned, by the
 ///              allocator.
-void arena_init(arena_t* restrict arena, usize capacity, u8* restrict buf);
+void arena_init(struct arena* restrict arena, usize capacity, u8* restrict buf);
 
 /// Allocate a block of memory satisfying a given alignment.
 ///
@@ -76,7 +76,7 @@ void arena_init(arena_t* restrict arena, usize capacity, u8* restrict buf);
 ///
 /// @return Pointer to the newly allocated block of memory. This can be null if the allocation
 ///         failed.
-u8* arena_alloc_aligned(arena_t* arena, usize size, u32 alignment);
+u8* arena_alloc_aligned(struct arena* arena, usize size, u32 alignment);
 
 /// Allocates a block of memory with a default alignment.
 ///
@@ -85,7 +85,7 @@ u8* arena_alloc_aligned(arena_t* arena, usize size, u32 alignment);
 /// Parameters:
 ///     * `arena`: The arena allocator responsible for the allocation.
 ///     * `size`: The size, in bytes, of the new block of memory.
-u8* arena_alloc(arena_t* arena, usize size);
+u8* arena_alloc(struct arena* arena, usize size);
 
 /// Reallocates a given block of memory.
 ///
@@ -98,14 +98,14 @@ u8* arena_alloc(arena_t* arena, usize size);
 ///     * `alignment`: The alignment to be used if a new allocation is needed. Should always be a
 ///                    power of two.
 u8* arena_realloc(
-    arena_t* restrict arena,
+    struct arena* restrict arena,
     u8* restrict old_mem,
     usize old_mem_size,
     usize new_size,
     u32   alignment);
 
 /// Reset the arena's offset
-void arena_clear(arena_t* arena);
+void arena_clear(struct arena* arena);
 
 /// Scratch arena allocator.
 ///
@@ -114,19 +114,19 @@ void arena_clear(arena_t* arena);
 /// go back to the saved state.
 ///
 /// Note: no copy is done, so changes to the memory will be persistent.
-typedef struct scratch_arena_s {
-    arena_t* parent;
-    usize    saved_offset;
-} scratch_arena_t;
+struct scratch_arena {
+    struct arena* parent;
+    usize         saved_offset;
+};
 
 /// Create a new scratch arena allocator.
-scratch_arena_t scratch_arena_start(arena_t* arena);
+struct scratch_arena scratch_arena_start(struct arena* arena);
 
 /// Create a new scratch arena with the current state of the parent of `scratch`.
-scratch_arena_t scratch_arena_decouple(scratch_arena_t const* scratch);
+struct scratch_arena scratch_arena_decouple(struct scratch_arena const* scratch);
 
 /// Restore the state of the associated arena allocator.
 ///
 /// Restores the offset state of the arena allocator saved in `scratch` when `scratch_arena_start`
 /// was called.
-void scratch_arena_end(scratch_arena_t* scratch);
+void scratch_arena_end(struct scratch_arena* scratch);
