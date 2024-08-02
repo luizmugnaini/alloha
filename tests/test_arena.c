@@ -16,7 +16,7 @@ struct foo {
 };
 
 // Check reads and writes.
-void arena_memory_not_owned(void) {
+static void arena_memory_not_owned(void) {
     int          test_passed = 1;
     struct arena arena;
     usize        buf_size = 1024;
@@ -26,8 +26,8 @@ void arena_memory_not_owned(void) {
 
     usize a1_length    = 128;
     usize a1_size      = a1_length * sizeof(int);
-    usize a1_alignment = sizeof(int);
-    int*  a1           = (int*)arena_alloc_aligned(&arena, a1_size, a1_alignment);
+    usize a1_alignment = alloha_alignof(int);
+    int*  a1           = (int*)arena_alloc_aligned(&arena, a1_size, (u32)a1_alignment);
 
     // Write to the acquired memory
     for (int i = 0; i < (int)a1_length; i++) {
@@ -53,7 +53,7 @@ void arena_memory_not_owned(void) {
 }
 
 // Checking correctness of the offsets for various allocations demanding different alignments.
-void arena_check_offsets(void) {
+static void arena_check_offsets(void) {
     usize mem_size = 1024;
     u8*   mem      = (u8*)malloc(mem_size);
 
@@ -61,8 +61,8 @@ void arena_check_offsets(void) {
 
     usize arr_u8_len       = 255;
     usize arr_u8_size      = arr_u8_len * sizeof(u8);
-    usize arr_u8_alignment = sizeof(u8);
-    u8*   arr_u8           = arena_alloc_aligned(&arena, arr_u8_size, arr_u8_alignment);
+    usize arr_u8_alignment = alloha_alignof(u8);
+    u8*   arr_u8           = arena_alloc_aligned(&arena, arr_u8_size, (u32)arr_u8_alignment);
     for (u8 c = 0; c < arr_u8_len; c++) {
         arr_u8[c] = c;
     }
@@ -70,8 +70,8 @@ void arena_check_offsets(void) {
 
     usize arr_u32_len       = 80;
     usize arr_u32_size      = arr_u32_len * sizeof(uint32_t);
-    usize arr_u32_alignment = sizeof(uint32_t);
-    u32*  arr_u32           = (u32*)arena_alloc_aligned(&arena, arr_u32_size, arr_u32_alignment);
+    usize arr_u32_alignment = alloha_alignof(uint32_t);
+    u32*  arr_u32           = (u32*)arena_alloc_aligned(&arena, arr_u32_size, (u32)arr_u32_alignment);
     for (u32 i = 0; i < arr_u32_len; i++) {
         arr_u32[i] = i + 1000;
     }
@@ -82,8 +82,8 @@ void arena_check_offsets(void) {
 
     usize       arr_foo_len       = 30;
     usize       arr_foo_size      = arr_foo_len * sizeof(struct foo);
-    usize       arr_foo_alignment = sizeof(struct foo) + 4;
-    struct foo* arr_foo = (struct foo*)arena_alloc_aligned(&arena, arr_foo_size, arr_foo_alignment);
+    usize       arr_foo_alignment = alloha_alignof(struct foo);
+    struct foo* arr_foo = (struct foo*)arena_alloc_aligned(&arena, arr_foo_size, (u32)arr_foo_alignment);
     for (u32 i = 0; i < arr_foo_len; i++) {
         struct foo f;
         f.x = f.y = f.z = 1;
@@ -99,8 +99,14 @@ void arena_check_offsets(void) {
     printf("Test `arena_check_offsets` passed.\n");
 }
 
-int main(void) {
+static void test_arena(void) {
     arena_memory_not_owned();
     arena_check_offsets();
+}
+
+#if !defined(ALLOHA_TEST_NO_MAIN)
+int main(void) {
+    test_arena();
     return 0;
 }
+#endif

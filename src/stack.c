@@ -38,7 +38,7 @@ void stack_init(struct stack* restrict stack, usize capacity, u8* restrict buf) 
     stack->previous_offset = 0;
 }
 
-u8* stack_alloc_aligned(struct stack* stack, size_t size, size_t alignment) {
+u8* stack_alloc_aligned(struct stack* stack, size_t size, u32 alignment) {
     if (!stack || stack->capacity == 0 || size == 0) {
         return NULL;
     }
@@ -50,7 +50,7 @@ u8* stack_alloc_aligned(struct stack* stack, size_t size, size_t alignment) {
         (uptr)free_mem,
         alignment,
         sizeof(struct stack_header),
-        alignof(struct stack_header));
+        alloha_alignof(struct stack_header));
     usize required_size = (usize)padding + size;
 
     if (required_size > available_capacity) {

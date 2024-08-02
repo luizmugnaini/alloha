@@ -113,7 +113,7 @@ void stack_init(struct stack* restrict stack, usize capacity, u8* restrict buf);
 ///     * `size`: Size, in bytes, of the new memory block.
 ///     * `alignment`: The needed alignment of the new memory block. This number should always be a
 ///                    power of two, otherwise the program will panic.
-u8* stack_alloc_aligned(struct stack* stack, usize size, usize alignment);
+u8* stack_alloc_aligned(struct stack* stack, usize size, u32 alignment);
 
 /// Allocate a block of memory satisfying a default alignment.
 ///

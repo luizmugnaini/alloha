@@ -10,9 +10,9 @@
 #include <stdlib.h>
 
 #define HEADER_SIZE  sizeof(struct stack_header)
-#define HEADER_ALIGN alignof(struct stack_header)
+#define HEADER_ALIGN alloha_alignof(struct stack_header)
 
-void stack_offsets_reads_and_writes(void) {
+static void stack_offsets_reads_and_writes(void) {
     struct stack stack;
     usize        buf_size = 1024;
     u8*          buf      = (u8*)malloc(buf_size);
@@ -24,7 +24,7 @@ void stack_offsets_reads_and_writes(void) {
     usize array1_len       = 70;
     usize array1_size      = array1_len * sizeof(u64);
     usize array1_alignment = sizeof(u64);
-    u64*  array1           = (u64*)stack_alloc_aligned(&stack, array1_size, array1_alignment);
+    u64*  array1           = (u64*)stack_alloc_aligned(&stack, array1_size, (u32)array1_alignment);
 
     // Write to `array1`.
     for (u32 idx = 0; idx < array1_len; idx++) {
@@ -58,7 +58,7 @@ void stack_offsets_reads_and_writes(void) {
     usize array2_len       = 30;
     usize array2_size      = array2_len * sizeof(i32);
     usize array2_alignment = sizeof(i32);
-    i32*  array2           = (i32*)stack_alloc_aligned(&stack, array2_size, array2_alignment);
+    i32*  array2           = (i32*)stack_alloc_aligned(&stack, array2_size, (u32)array2_alignment);
 
     // Write to `array2`.
     i32 array2_constant_value = 123456;
@@ -96,7 +96,7 @@ void stack_offsets_reads_and_writes(void) {
     printf("Test `stack_offsets_reads_and_writes` passed.\n");
 }
 
-void stack_memory_stress_and_free(void) {
+static void stack_memory_stress_and_free(void) {
     usize const buf_size = 2048;
     u8* const   buf      = (u8*)malloc(buf_size);
 
@@ -105,31 +105,31 @@ void stack_memory_stress_and_free(void) {
 
     usize       a1_size      = 50 * sizeof(char*);
     usize       a1_alignment = sizeof(char*);
-    char const* a1           = (char const*)stack_alloc_aligned(&stack, a1_size, a1_alignment);
+    char const* a1           = (char const*)stack_alloc_aligned(&stack, a1_size, (u32)a1_alignment);
     assert(a1);
-    assert(((stack.previous_offset - HEADER_SIZE) % alignof(struct stack_header)) == 0);
+    assert(((stack.previous_offset - HEADER_SIZE) % alloha_alignof(struct stack_header)) == 0);
     assert((stack.previous_offset % a1_alignment) == 0);
     assert((iptr)stack.previous_offset == (iptr)a1 - stack_buf_diff);
 
     usize a2_size      = 100 * sizeof(i32);
     usize a2_alignment = sizeof(i32);
-    i32*  a2           = (i32*)stack_alloc_aligned(&stack, a2_size, a2_alignment);
+    i32*  a2           = (i32*)stack_alloc_aligned(&stack, a2_size, (u32)a2_alignment);
     assert(a2);
-    assert(((stack.previous_offset - HEADER_SIZE) % alignof(struct stack_header)) == 0);
+    assert(((stack.previous_offset - HEADER_SIZE) % alloha_alignof(struct stack_header)) == 0);
     assert((stack.previous_offset % a2_alignment) == 0);
     assert((iptr)stack.previous_offset == (iptr)a2 - stack_buf_diff);
 
     usize a3_size      = 33 * sizeof(u64);
     usize a3_alignment = sizeof(u64);
-    u64*  a3           = (u64*)stack_alloc_aligned(&stack, a3_size, a3_alignment);
+    u64*  a3           = (u64*)stack_alloc_aligned(&stack, a3_size, (u32)a3_alignment);
     assert(a3);
-    assert(((stack.previous_offset - HEADER_SIZE) % alignof(struct stack_header)) == 0);
+    assert(((stack.previous_offset - HEADER_SIZE) % alloha_alignof(struct stack_header)) == 0);
     assert(stack.previous_offset % a3_alignment == 0);
     assert((iptr)stack.previous_offset == (iptr)a3 - stack_buf_diff);
 
     usize a4_size      = 49 * sizeof(u8);
     usize a4_alignment = sizeof(u8);
-    u8*   a4           = (u8*)stack_alloc_aligned(&stack, a4_size, a4_alignment);
+    u8*   a4           = (u8*)stack_alloc_aligned(&stack, a4_size, (u32)a4_alignment);
     assert(a4);
     assert(((stack.previous_offset - HEADER_SIZE) % HEADER_ALIGN) == 0);
     assert(stack.previous_offset % a4_alignment == 0);
@@ -137,7 +137,7 @@ void stack_memory_stress_and_free(void) {
 
     usize a5_size      = 8 * sizeof(unsigned);
     usize a5_alignment = sizeof(unsigned);
-    u32*  a5           = (u32*)stack_alloc_aligned(&stack, a5_size, a5_alignment);
+    u32*  a5           = (u32*)stack_alloc_aligned(&stack, a5_size, (u32)a5_alignment);
     assert(a5);
     assert(((stack.previous_offset - HEADER_SIZE) % HEADER_ALIGN) == 0);
     assert(stack.previous_offset % a5_alignment == 0);
@@ -145,7 +145,7 @@ void stack_memory_stress_and_free(void) {
 
     usize       a6_size      = 14 * sizeof(char*);
     usize       a6_alignment = sizeof(char*);
-    char const* a6           = (char const*)stack_alloc_aligned(&stack, a6_size, a6_alignment);
+    char const* a6           = (char const*)stack_alloc_aligned(&stack, a6_size, (u32)a6_alignment);
     assert(a6);
     assert(((stack.previous_offset - HEADER_SIZE) % HEADER_ALIGN) == 0);
     assert(stack.previous_offset % a6_alignment == 0);
@@ -166,18 +166,24 @@ void stack_memory_stress_and_free(void) {
     assert(stack.buf && stack.capacity);  // The memory should still be available.
 
     // Ensure we can allocate after freeing all blocks.
-    i32* b1 = (i32*)stack_alloc_aligned(&stack, 80 * sizeof(i32), alignof(i32));
+    i32* b1 = (i32*)stack_alloc_aligned(&stack, 80 * sizeof(i32), (u32)alloha_alignof(i32));
     assert(b1);
 
-    f64* b2 = (f64*)stack_alloc_aligned(&stack, 80 * sizeof(f64), alignof(f64));
+    f64* b2 = (f64*)stack_alloc_aligned(&stack, 80 * sizeof(f64), (u32)alloha_alignof(f64));
     assert(b2);
 
     free(buf);
     printf("Test `stack_stress_and_free` passed.\n");
 }
 
-int main(void) {
+static void test_stack(void) {
     stack_offsets_reads_and_writes();
     stack_memory_stress_and_free();
+}
+
+#if !defined(ALLOHA_TEST_NO_MAIN)
+int main(void) {
+    test_stack();
     return 0;
 }
+#endif

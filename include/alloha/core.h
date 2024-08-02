@@ -37,7 +37,7 @@ typedef double f64;
 
 #define alloha_discard(res) ((void)res)
 
-#define alignof(x) _Alignof(x)
+#define alloha_alignof(x) _Alignof(x)
 
 /// Check if a given number is a power of two.
 #define alloha_is_power_of_two(x) (((x) > 0) && !((x) & ((x)-1)))

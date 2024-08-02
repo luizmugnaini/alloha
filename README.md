@@ -2,29 +2,21 @@
 
 This project contains the implementation of classic memory allocators from scratch, written in C.
 
-## Building
+# Development
 
-The build system is based on CMake. You can use any of the major three compilers: Clang, GCC,
-or MSVC. For instance, if you want to compile with Clang and use Ninja as your generator, you can
-run
-
-```bash
-cmake -S . -B build -DCMAKE_C_COMPILER=clang -G=Ninja
+The library has a bundled compilation unit `src/all.c` which may be used if you wish to compile as
+a unity build. This is as simple as, e.g.:
+```sh
+# Build static library.
+clang -c -std=c11 -Iinclude src/all.c -o libyoneda.o && llvm-ar rc libyoneda.a libyoneda.o
+# Build all library tests.
+clang -std=c11 -Iinclude tests/test_all.c -o test
 ```
 
-Now you can simply build the project with:
-
-```bash
-cmake --build build
-```
-
-## Tests
-
-Now that you've compiled and built the project, you can run the tests using CTest via
-
-```bash
-ctest --test-dir build
-```
+Another option is to use the `build.lua` script, which will manage to build the project with many
+custom options that may be viewed in the file itself. With that said, Lua is, optionally, the only
+dependency of the whole project - being only required if you want the convenience of running the build 
+script.
 
 ## References and Similar Projects
 
