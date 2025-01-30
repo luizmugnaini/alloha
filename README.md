@@ -1,3 +1,10 @@
+# DISCLAIMER
+
+> This project is now hosted at https://git.sr.ht/~presheaf/alloha
+>
+> This repository will no longer be updated. Please refer to the new hosting
+> page for new development and contributions or contact me via e-mail.
+
 # Alloha 🌺
 
 This project contains the implementation of classic memory allocators from scratch, written in C.
